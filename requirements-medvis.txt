@@ -1,0 +1,5 @@
+# Librerías para el pipeline de visualización médica
+scikit-image==0.22.0
+opencv-python==4.9.0.80
+pillow==10.3.0
+pydicom==2.4.4

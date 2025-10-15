@@ -2,8 +2,6 @@
 
 Implementaciones en **Python** de métodos geométricos (interpolación 1D y curvas paramétricas 2D con splines) y un **pipeline de visualización médica** (segmentación de contornos óseos y ajuste con Bézier/B‑splines) para el curso *Tópicos en Geometría y Visualización Médica*.
 
-> Este README sustituto corrige la URL de clonación, unifica el _quickstart_, y prepara el terreno para integrar el módulo `medvis/` (contorno → spline → muestreo equidistante).
-
 ## Tabla de contenido
 - [Estructura del repositorio](#estructura-del-repositorio)
 - [Requisitos](#requisitos)
@@ -92,15 +90,3 @@ medvis/
 ├── sampling.py   # Muestreo equidistante sobre la curva ajustada
 └── viz.py        # Utilidades de visualización y guardado en modo headless
 ```
-
-**Entregables previstos** (assignment_3/4):
-- Implementación de **De Casteljau** (Bézier) y **De Boor** (B‑splines), con control de continuidad \(C^0/C^1/C^2\).
-- Ajuste al contorno del **húmero** desde imágenes (o máscaras), y **muestreo equidistante** para análisis geométrico (curvatura, radios, longitudes).
-
-## Pruebas y reproducibilidad
-- Añadir `tests/` con casos sintéticos (interpolación 1D y cierre de curva 2D).
-- Fijar *seed* y versiones de dependencias.
-- (Opcional) CI con GitHub Actions que ejecute los ejemplos en modo *headless* y adjunte artefactos de imagen.
-
-## Licencia
-Sugerida **MIT** o **BSD‑3** (añadir `LICENSE` en la raíz).
