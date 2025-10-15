@@ -1,94 +1,106 @@
-# Geometric Methods Project
+# Topics in Geometry and Medical Visualization
 
-This repository contains implementations of different geometric methods developed for the Applied Geometry course. Each assignment is contained in its own directory with specific implementations and examples.
+Implementaciones en **Python** de métodos geométricos (interpolación 1D y curvas paramétricas 2D con splines) y un **pipeline de visualización médica** (segmentación de contornos óseos y ajuste con Bézier/B‑splines) para el curso *Tópicos en Geometría y Visualización Médica*.
 
-## Assignments
+> Este README sustituto corrige la URL de clonación, unifica el _quickstart_, y prepara el terreno para integrar el módulo `medvis/` (contorno → spline → muestreo equidistante).
 
-The repository currently includes:
+## Tabla de contenido
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Requisitos](#requisitos)
+- [Instalación](#instalación)
+- [Ejecución rápida (quickstart)](#ejecución-rápida-quickstart)
+- [Modo *headless* (sin GUI)](#modo-headless-sin-gui)
+- [Visualización médica (plan de integración)](#visualización-médica-plan-de-integración)
+- [Pruebas y reproducibilidad](#pruebas-y-reproducibilidad)
+- [Licencia](#licencia)
 
-1. **Assignment 1: Spline Interpolation (1D)** - Implementation of linear and quadratic splines for 1D data interpolation with applications in rocket motion.
-2. **Assignment 2: Parametric Spline Curves (2D)** - Implementation of 2D parametric curves using quadratic splines with applications in curve design.
-
-Each assignment directory contains its own README with detailed instructions and usage examples.
-
-## Requirements
-
-The project requires:
-
-- Python 3.6+
-- NumPy
-- Matplotlib
-- SciPy
-
-## Installation
-
-### 1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/geometric_project.git
-cd geometric_project
+## Estructura del repositorio
 ```
-
-### 2. Create a virtual environment (recommended):
-
-```bash
-python -m venv venv
+Topics_in_geometry_and_medical_visualization/
+├── assignment_1/        # Interpolación con splines en 1D (lineal, cuadrática, etc.)
+├── assignment_2/        # Curvas paramétricas 2D con splines (p. ej. elipse)
+├── assignment_3/        # (a completar) Bézier y B‑splines: De Casteljau / De Boor, C^k
+├── assignment_4/        # (a completar) Pipeline end‑to‑end de visualización médica
+├── requirements.txt     # Dependencias del proyecto
+├── INSTALL.md           # Notas de instalación (opcional)
+├── setup.sh             # Script de conveniencia (opcional)
+└── README.md            # Este archivo
 ```
+Cada *assignment* puede incluir su propio `README.md` con detalles adicionales.
 
-#### On Windows:
+## Requisitos
+Se recomienda **Python 3.12** (o 3.11). Evitar por ahora 3.13 por compatibilidades de paquetes de geometría que aún no publican *wheels* estables.
+Dependencias base (se fijarán en `requirements.txt` en el siguiente paso de la checklist):
+- `numpy`, `scipy`, `matplotlib`
+- (Próximo) `scikit-image`, `opencv-python` (segmentación y morfología)
+- (Próximo) `pydicom` (carga de DICOM), `pillow` (E/S imágenes)
+
+## Instalación
 ```bash
-venv\Scripts\activate
-```
+# 1) Clonar el repositorio
+git clone https://github.com/sauribee/Topics_in_geometry_and_medical_visualization.git
+cd Topics_in_geometry_and_medical_visualization
 
-#### On macOS/Linux:
-```bash
-source venv/bin/activate
-```
+# 2) Crear y activar entorno virtual (venv)
+python -m venv .venv
+# Windows
+.\.venv\Scripts\activate
+# Linux / macOS
+source .venv/bin/activate
 
-### 3. Install dependencies:
-
-```bash
+# 3) Instalar dependencias
 pip install -r requirements.txt
 ```
 
-## Running the Code
+> Alternativa con Conda (opcional): crear `environment.yml` y usar `conda env create -f environment.yml` (lo añadiremos en la checklist).
 
-Each assignment has specific instructions for running its examples. Please refer to:
+## Ejecución rápida (quickstart)
 
-- [Assignment 1 Instructions](assignment_1/README.md)
-- [Assignment 2 Instructions](assignment_2/README.md)
+### Assignment 1 (1D)
+Ejecuta el script/módulo del *assignment* con parámetros por defecto y guarda salidas en `assignment_1/output/` (si aplica). Si el *assignment* define `main.py`, típicamente:
+```bash
+python -m assignment_1.main --save_only
+```
+> Revisa `assignment_1/README.md` para opciones disponibles (nodos, tipo de spline, etc.).
 
-### Generate Plots in Headless Environment
-
-If working in a headless environment (like a server without GUI), all examples have been updated to save plots as image files in each assignment's output directory:
-
+### Assignment 2 (2D)
+Ejemplo típico de elipse paramétrica (guardando las figuras sin abrir ventanas):
 ```bash
 python -m assignment_2.main --example ellipse --save_only
 ```
+Las imágenes se guardarán en `assignment_2/output/` (o la carpeta definida por el *assignment*).
 
-The saved plots will be available in the respective assignment's output directory.
+## Modo *headless* (sin GUI)
+Para servidores sin interfaz gráfica:
+- Usa `--save_only` en los comandos anteriores (cuando esté implementado).
+- O fuerza el *backend* no interactivo de Matplotlib:
+  ```bash
+  export MPLBACKEND=Agg        # Linux/macOS
+  setx MPLBACKEND Agg          # Windows PowerShell (persistente para futuras sesiones)
+  ```
+Los gráficos se guardarán a archivos (`.png`, `.pdf`) en la carpeta de salida correspondiente.
 
-## Repository Structure
+## Visualización médica (plan de integración)
+
+Se añadirá un nuevo paquete `medvis/` con el pipeline completo **imagen → segmento → contorno → spline → muestreo equidistante**:
 
 ```
-geometric_project/
-│
-├── assignment_1/          # 1D Spline Interpolation
-│   ├── README.md          # Specific instructions for Assignment 1
-│   ├── linear/            # Linear spline implementation 
-│   ├── quadratic/         # Quadratic spline implementation
-│   └── ... 
-│
-├── assignment_2/          # 2D Parametric Spline Curves
-│   ├── README.md          # Specific instructions for Assignment 2
-│   ├── curves/            # Implementation of 2D curves
-│   ├── output/            # Saved plot images
-│   └── ...
-│
-├── requirements.txt       # Python dependencies
-└── README.md              # This file
+medvis/
+├── io.py         # Lectura de PNG/JPG y (opcional) DICOM con pydicom
+├── segment.py    # Segmentación básica: umbral/Canny + morfología + limpieza
+├── curvefit.py   # Ajuste spline/Bézier al contorno; reparametrización por longitud de arco
+├── sampling.py   # Muestreo equidistante sobre la curva ajustada
+└── viz.py        # Utilidades de visualización y guardado en modo headless
 ```
 
-## License
+**Entregables previstos** (assignment_3/4):
+- Implementación de **De Casteljau** (Bézier) y **De Boor** (B‑splines), con control de continuidad \(C^0/C^1/C^2\).
+- Ajuste al contorno del **húmero** desde imágenes (o máscaras), y **muestreo equidistante** para análisis geométrico (curvatura, radios, longitudes).
 
-This project is part of the Applied Geometry course and is provided for educational purposes. 
+## Pruebas y reproducibilidad
+- Añadir `tests/` con casos sintéticos (interpolación 1D y cierre de curva 2D).
+- Fijar *seed* y versiones de dependencias.
+- (Opcional) CI con GitHub Actions que ejecute los ejemplos en modo *headless* y adjunte artefactos de imagen.
+
+## Licencia
+Sugerida **MIT** o **BSD‑3** (añadir `LICENSE` en la raíz).
