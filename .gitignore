@@ -1,13 +1,9 @@
-# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
 .env
-# Jupyter
 .ipynb_checkpoints/
-# Datos pesados (los reales irán en LFS)
 data/raw/
 data/external/
-# Otros
 .DS_Store
