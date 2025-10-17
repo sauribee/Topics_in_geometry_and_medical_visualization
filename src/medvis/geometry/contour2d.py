@@ -6,7 +6,27 @@ from typing import Optional, Tuple
 import numpy as np
 from numpy.typing import NDArray
 from skimage.measure import find_contours, label
-from skimage.morphology import remove_small_holes
+from skimage.morphology import remove_small_holes, binary_erosion
+
+try:
+    from skimage.morphology import footprint_rectangle as _fp_rect_backend
+
+    def _fp_rect(h: int, w: int):
+        return _fp_rect_backend((h, w))
+
+except Exception:
+    try:
+        from skimage.morphology import rectangle as _fp_rect_backend_legacy
+
+        def _fp_rect(h: int, w: int):
+            return _fp_rect_backend_legacy(h, w)
+
+    except Exception:
+        import numpy as _np
+
+        def _fp_rect(h: int, w: int):
+            return _np.ones((h, w), dtype=bool)
+
 
 ArrayF = NDArray[np.float64]
 ArrayB = NDArray[np.bool_]
@@ -21,6 +41,33 @@ __all__ = [
 # ---------------------------------------------------------------------------
 # Geometry utilities
 # ---------------------------------------------------------------------------
+
+
+def _touches_frame(rc_contour: ArrayF, H: int, W: int, tol: float = 1e-3) -> bool:
+    """
+    True if any vertex of (row,col) contour lies on/too-close to the image frame.
+    'tol' is in pixels. Use a *small* tol so internal borders at ~0.5 px survive.
+    """
+    r = rc_contour[:, 0]
+    c = rc_contour[:, 1]
+    return (
+        (r.min() <= 0.0 + tol)
+        or (c.min() <= 0.0 + tol)
+        or (r.max() >= (H - 1) - tol)
+        or (c.max() >= (W - 1) - tol)
+    )
+
+
+def _filter_frame_contours(
+    contours_rc: list[ArrayF], shape_hw: tuple[int, int], tol: float = 1e-3
+) -> tuple[list[ArrayF], list[ArrayF]]:
+    """Split into (non_frame, frame_touching) using a tight tolerance."""
+    H, W = shape_hw
+    non_frame: list[ArrayF] = []
+    frame: list[ArrayF] = []
+    for c in contours_rc:
+        (frame if _touches_frame(c, H, W, tol) else non_frame).append(c)
+    return non_frame, frame
 
 
 def signed_area_2d(points_xy: ArrayF) -> float:
@@ -180,19 +227,32 @@ class ContourExtractionConfig:
         closed contours when the object is in contact with the image edge.
     pad_width : int
         Number of pixels to pad the mask on all sides.
+    frame_tol : float
+        Tolerance in pixels for detecting frame-touching contours.
+    erosion_last_resort : bool
+        If True, perform one-pixel binary erosion as a last resort
+        to detach the foreground from the image border if no
+        usable contour is found.
+    erosion_iters : int
+        Number of binary erosion iterations for the last-resort step.
     """
 
     level: float = 0.5
     fill_holes: bool = True
-    simplify_tol: Optional[float] = None  # placeholder (see docstring)
+    simplify_tol: Optional[float] = None
     min_points: int = 256
     ensure_ccw: bool = True
     spacing_xy: Tuple[float, float] = (1.0, 1.0)
     origin_xy: Tuple[float, float] = (0.0, 0.0)
 
-    # NEW: fallback when the object touches the image border
+    # frame handling
     pad_on_boundary: bool = True
     pad_width: int = 1
+    frame_tol: float = 1e-3  # tight tolerance for frame-touching detection
+
+    # last-resort erosion when the mask is all-ones
+    erosion_last_resort: bool = True
+    erosion_iters: int = 5
 
 
 # ---------------------------------------------------------------------------
@@ -207,45 +267,17 @@ def extract_primary_contour(
 ) -> ArrayF:
     """
     Extract the primary (outer) closed contour from a 2D binary mask and return
-    an evenly resampled polygon in **physical (x,y)** coordinates.
+    an evenly resampled polygon in physical (x,y) coordinates.
 
-    Steps
-    -----
-    1) Binarize the input (`> 0.5` if numeric). Optionally fill holes.
-    2) Keep the largest connected component.
-    3) `find_contours` at level=0.5 to extract candidate polylines in (row, col).
-    4) Choose the outer boundary (largest absolute area).
-    5) Convert to physical coordinates using (sx, sy) and (ox, oy).
-    6) Enforce orientation (CCW) if requested.
-    7) Evenly resample to `min_points` vertices.
-
-    Parameters
-    ----------
-    mask : (H, W) array-like
-        2D binary or numeric mask.
-    config : ContourExtractionConfig, optional
-        Extraction parameters (see dataclass).
-
-    Returns
-    -------
-    contour_xy : (N, 2) float64
-        Evenly resampled CCW polygon in physical coordinates (x, y),
-        with N = config.min_points (closed implicitly).
-
-    Raises
-    ------
-    ValueError
-        If the mask has no foreground or no contour can be found.
+    Robust to: touching-frame artifacts, all-ones masks (via padding or erosion), and padding fallback.
     """
     cfg = config or ContourExtractionConfig()
 
     # 1) Binarize
     m = _to_bool_mask(mask)
 
-    # 2) Optional hole filling (use very large area threshold)
+    # 2) Optional hole filling
     if cfg.fill_holes:
-        # Fill any internal holes by setting a very large threshold
-        # (safe for medical masks when you expect a solid bone region).
         m = remove_small_holes(m, area_threshold=int(m.size), connectivity=2)
 
     # 3) Largest CC
@@ -253,51 +285,107 @@ def extract_primary_contour(
     if not m.any():
         raise ValueError("Empty mask after preprocessing (no foreground).")
 
-    # 4) Find candidate contours at the binary boundary level
-    contours_rc = find_contours(m.astype(float), level=cfg.level)
-
-    if len(contours_rc) == 0 and cfg.pad_on_boundary:
-        mp = np.pad(
-            m.astype(np.uint8), cfg.pad_width, mode="constant", constant_values=0
-        )
-        padded = find_contours(mp.astype(float), level=cfg.level)
-        contours_rc = [c - cfg.pad_width for c in padded]
-
-    if len(contours_rc) == 0:
-        uniq = np.unique(m).tolist()
-        raise ValueError(
-            f"No contour found at level={cfg.level}. "
-            f"Check mask: shape={m.shape}, sum={int(m.sum())}, unique={uniq}. "
-            f"Tip: if your object is all-ones or all-zeros after preprocessing, "
-            f"there is no 0↔1 transition to contour."
-        )
-
-    # 5) Choose outer boundary by absolute area in (x,y) after mapping
+    H, W = m.shape
     sx, sy = cfg.spacing_xy
     ox, oy = cfg.origin_xy
 
     def rc_to_xy(cont: ArrayF) -> ArrayF:
-        # skimage returns (row, col). We map to (x, y):
-        #   x = ox + col * sx
-        #   y = oy + row * sy
         col = cont[:, 1]
         row = cont[:, 0]
         x = ox + col * sx
         y = oy + row * sy
         return np.column_stack([x, y])
 
-    candidates_xy = [rc_to_xy(np.asarray(c, dtype=np.float64)) for c in contours_rc]
-    areas = np.array([abs(signed_area_2d(c)) for c in candidates_xy], dtype=np.float64)
-    if areas.size == 0 or np.all(areas <= 0.0):
-        raise ValueError("Contours found but degenerate (zero area).")
-    idx = int(np.argmax(areas))
-    outer_xy = candidates_xy[idx]
+    # --- CASO ESPECIAL: máscara uniforme -------------------------------
+    uniq = np.unique(m)
+    if uniq.size == 1:
+        if not uniq[0]:
+            raise ValueError("All-zero mask: no contour exists.")
+        # All-ones: crear borde interno de forma determinista.
+        # Opción A: padding → contorno interior (preferible, no toca frame tras deshacer padding)
+        if cfg.pad_on_boundary:
+            pad = max(1, int(cfg.pad_width))
+            mp = np.pad(m.astype(np.uint8), pad, mode="constant", constant_values=0)
+            padded = find_contours(mp.astype(float), level=cfg.level)
+            # Deshacer padding y recortar a la ventana válida
+            shifted: list[ArrayF] = []
+            for c in padded:
+                c2 = c - pad
+                c2[:, 0] = np.clip(c2[:, 0], 0, H - 1)
+                c2[:, 1] = np.clip(c2[:, 1], 0, W - 1)
+                shifted.append(c2)
+            # Filtrar contornos pegados al marco con tolerancia estricta
+            non_frame, _ = _filter_frame_contours(shifted, (H, W), tol=cfg.frame_tol)
+            if len(non_frame) > 0:
+                candidates_xy = [
+                    rc_to_xy(np.asarray(c, dtype=np.float64)) for c in non_frame
+                ]
+                areas = np.array(
+                    [abs(signed_area_2d(c)) for c in candidates_xy], dtype=np.float64
+                )
+                outer_xy = candidates_xy[int(np.argmax(areas))]
+                if cfg.ensure_ccw and signed_area_2d(outer_xy) < 0.0:
+                    outer_xy = outer_xy[::-1]
+                return resample_closed_polyline(outer_xy, n=max(cfg.min_points, 3))
+        # Opción B: erosión iterativa (si padding no se usa o falla)
+        if cfg.erosion_last_resort:
+            m_er = m.copy()
+            for _ in range(max(1, int(cfg.erosion_iters))):
+                m_er = binary_erosion(m_er, footprint=_fp_rect(3, 3))
+                if not m_er.any():
+                    break
+            if m_er.any():
+                m = m_er
+            else:
+                raise ValueError(
+                    "All-ones mask and erosion removed everything; cannot extract a contour."
+                )
+        else:
+            raise ValueError(
+                "All-ones mask and padding disabled; enable pad_on_boundary or erosion_last_resort."
+            )
 
-    # 6) Enforce orientation if requested
+    # --- PASO 1: extracción directa ------------------------------------
+    contours_rc = find_contours(m.astype(float), level=cfg.level)
+    non_frame, _ = _filter_frame_contours(contours_rc, (H, W), tol=cfg.frame_tol)
+
+    # --- PASO 2: padding fallback si no hay candidatos ------------------
+    if len(non_frame) == 0 and cfg.pad_on_boundary:
+        pad = max(1, int(cfg.pad_width))
+        mp = np.pad(m.astype(np.uint8), pad, mode="constant", constant_values=0)
+        padded = find_contours(mp.astype(float), level=cfg.level)
+        shifted: list[ArrayF] = []
+        for c in padded:
+            c2 = c - pad
+            c2[:, 0] = np.clip(c2[:, 0], 0, H - 1)
+            c2[:, 1] = np.clip(c2[:, 1], 0, W - 1)
+            shifted.append(c2)
+        non_frame, _ = _filter_frame_contours(shifted, (H, W), tol=cfg.frame_tol)
+
+    # --- PASO 3: erosión “último recurso” -------------------------------
+    if len(non_frame) == 0 and cfg.erosion_last_resort:
+        me = binary_erosion(m, footprint=_fp_rect(3, 3))
+        if me.any():
+            contours_rc = find_contours(me.astype(float), level=cfg.level)
+            non_frame, _ = _filter_frame_contours(
+                contours_rc, (H, W), tol=cfg.frame_tol
+            )
+
+    if len(non_frame) == 0:
+        uniq = np.unique(m).tolist()
+        raise ValueError(
+            f"No usable (non-frame) contour found. "
+            f"shape={m.shape}, sum={int(m.sum())}, unique={uniq}. "
+            f"Try increasing internal erosion (erosion_iters), or ensure the object "
+            f"does not fully cover the image."
+        )
+
+    # Selección final por área
+    candidates_xy = [rc_to_xy(np.asarray(c, dtype=np.float64)) for c in non_frame]
+    areas = np.array([abs(signed_area_2d(c)) for c in candidates_xy], dtype=np.float64)
+    outer_xy = candidates_xy[int(np.argmax(areas))]
+
     if cfg.ensure_ccw and signed_area_2d(outer_xy) < 0.0:
         outer_xy = outer_xy[::-1]
 
-    # 7) Evenly resample to min_points
-    N = int(max(cfg.min_points, 3))
-    contour_xy = resample_closed_polyline(outer_xy, n=N)
-    return contour_xy
+    return resample_closed_polyline(outer_xy, n=max(cfg.min_points, 3))

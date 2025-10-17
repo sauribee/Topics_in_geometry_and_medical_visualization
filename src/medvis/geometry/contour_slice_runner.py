@@ -120,9 +120,13 @@ def process_slice(
         ensure_ccw=cfg.contour.ensure_ccw,
         spacing_xy=meta.spacing_xy,
         origin_xy=meta.origin_xy,
-        pad_on_boundary=cfg.contour.pad_on_boundary,
-        pad_width=cfg.contour.pad_width,
+        pad_on_boundary=True,
+        pad_width=max(1, cfg.contour.pad_width),
+        frame_tol=cfg.contour.frame_tol,
+        erosion_last_resort=cfg.contour.erosion_last_resort,
+        erosion_iters=cfg.contour.erosion_iters,
     )
+
     contour_xy = extract_primary_contour(mask2d, config=cconf)
 
     # Fit Bézier (piecewise) and B-spline (closed)
