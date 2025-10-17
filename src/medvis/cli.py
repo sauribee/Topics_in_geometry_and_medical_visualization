@@ -31,6 +31,8 @@ def main() -> None:
     sitk.WriteImage(
         sitk.GetImageFromArray(sagital), os.path.join(args.out_dir, "sagittal.nii.gz")
     )
+    ax = sitk.GetImageFromArray(axial)
+    ax.SetSpacing((sx, sy))
 
     mesh = isosurface_mesh(img, level=args.level)
     mesh.save(os.path.join(args.out_dir, "isosurface.ply"))
