@@ -1,21 +1,16 @@
-﻿# ===========================
-# Runtime (MedVis)
-# ===========================
-numpy
-scipy
-matplotlib
-scikit-image
-pydicom
-SimpleITK
-nibabel
+﻿numpy>=2.1,<2.3
+scipy>=1.14
+scikit-image>=0.25.2
 pyvista
 vtk
+SimpleITK
+nibabel
+pydicom
+scikit-image
+matplotlib
+scikit-image
 opencv-python-headless
 bezier>=2024.6.20
-
-# ===========================
-# Dev & QA (hooks, tests, notebooks)
-# ===========================
 pytest
 pre-commit
 ruff

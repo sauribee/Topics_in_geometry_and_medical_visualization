@@ -13,3 +13,6 @@ requires-python = ">=3.12"
 minversion = "7.0"
 addopts = "-q"
 testpaths = ["tests"]
+filterwarnings = [
+  "ignore:builtin type (SwigPyPacked|SwigPyObject|swigvarlink) has no __module__ attribute:DeprecationWarning"
+]

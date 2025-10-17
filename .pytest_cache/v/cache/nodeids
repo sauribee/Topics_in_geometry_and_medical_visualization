@@ -1,0 +1,5 @@
+[
+  "tests/test_import.py::test_import",
+  "tests/test_io_synthetic.py::test_spacing_xyz_synthetic",
+  "tests/test_viz_synthetic.py::test_isosurface_on_blob"
+]
