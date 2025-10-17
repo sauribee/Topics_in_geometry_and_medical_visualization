@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "medvis"
+version = "0.1.0"
+description = "Geometría y visualización médica (DICOM/NIfTI, Bézier/B-splines, PyVista)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy", "scipy", "matplotlib", "scikit-image",
+  "pydicom", "SimpleITK", "nibabel",
+  "pyvista", "vtk",
+  "bezier>=2024.6.20", "opencv-python-headless"
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+testpaths = ["tests"]

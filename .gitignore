@@ -1,48 +1,13 @@
-# Virtual Environment
-geometric_project_env/
-venv/
-env/
-ENV/
-
-# PDF documents
-*.pdf
-
-# Python cache files
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS generated files
+.venv/
+.env
+# Jupyter
+.ipynb_checkpoints/
+# Datos pesados (los reales irán en LFS)
+data/raw/
+data/external/
+# Otros
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db 
