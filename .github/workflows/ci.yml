@@ -15,4 +15,3 @@ jobs:
       - run: pip install -e . --no-deps
       - run: pre-commit run --all-files
       - run: pytest -q
-      - run: coverage run -m pytest
