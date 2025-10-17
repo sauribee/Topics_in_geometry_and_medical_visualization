@@ -1,11 +1,24 @@
-# Core scientific stack (probado en Python >=3.11, <3.13)
-# Recomendado: Python 3.12 (o 3.11)
-numpy==1.26.4
-scipy==1.11.4
-matplotlib==3.8.4
+﻿# ===========================
+# Runtime (MedVis)
+# ===========================
+numpy
+scipy
+matplotlib
+scikit-image
+pydicom
+SimpleITK
+nibabel
+pyvista
+vtk
+opencv-python-headless
+bezier>=2024.6.20
 
-# Utilidades
-tqdm==4.66.4
-
-# (Opcional, para splines Bézier) — Nota: no hay wheel estable para Python 3.13 a fecha de este pin.
-bezier==2024.6.20 ; python_version < "3.13"
+# ===========================
+# Dev & QA (hooks, tests, notebooks)
+# ===========================
+pytest
+pre-commit
+ruff
+black
+jupytext
+nbstripout
