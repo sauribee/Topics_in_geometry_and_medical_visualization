@@ -1,0 +1,3 @@
+02 deformed ellipse harmonics
+Bézier:  max_err = 2.4629   mean_err = 0.5387
+B-spline: max_err = 0.1654   mean_err = 0.0172
