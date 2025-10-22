@@ -1,0 +1,3 @@
+01 rotated ellipse
+Bézier:  max_err = 2.6042   mean_err = 0.8371
+B-spline: max_err = 0.1207   mean_err = 0.0156
