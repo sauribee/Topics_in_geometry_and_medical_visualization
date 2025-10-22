@@ -4,13 +4,10 @@ import json
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+from dataclasses import dataclass
 import numpy as np
+import SimpleITK as sitk
 from numpy.typing import NDArray
-
-try:
-    import SimpleITK as sitk
-except Exception:  # pragma: no cover
-    sitk = None  # type: ignore[assignment]
 
 from .contour_slice_runner import (
     SliceMeta,
@@ -138,6 +135,95 @@ def load_mask2d_from_nifti(
         raise FileNotFoundError(f"File not found: {p}")
     img = sitk.ReadImage(str(p))
     return load_mask2d_from_sitk(img, slice_index=slice_index, threshold=threshold)
+
+
+@dataclass
+class SliceIO:
+    """
+    Container for 2D mask slice and geometric metadata.
+    - mask2d:     binary mask as NumPy array with shape (rows, cols).
+    - spacing_xy: (sx, sy), pixel spacing in physical units.
+    - origin_xy:  (ox, oy), physical origin of index (0,0).
+    - direction_2x2: 2×2 in-plane direction-cosines matrix.
+    """
+
+    mask2d: np.ndarray
+    spacing_xy: Tuple[float, float]
+    origin_xy: Tuple[float, float]
+    direction_2x2: np.ndarray
+
+
+def _extract_2d_from_3d(
+    img3d: sitk.Image, slice_index: int, axis: int = 2
+) -> sitk.Image:
+    """
+    Extract a 2D slice from a 3D SimpleITK image using ExtractImageFilter.
+
+    The returned 2D image carries the correct spacing, origin, and the in-plane
+    direction-cosines for that slice (handled by SimpleITK).
+    """
+    size = list(img3d.GetSize())
+    index = [0, 0, 0]
+
+    if axis < 0 or axis > 2:
+        raise ValueError("axis must be 0, 1 or 2 for 3D images.")
+    if slice_index < 0 or slice_index >= size[axis]:
+        raise ValueError(f"slice_index out of range for axis {axis}: {slice_index}")
+
+    size[axis] = 0  # 0 → reduce that dimension
+    index[axis] = slice_index
+
+    f = sitk.ExtractImageFilter()
+    f.SetSize(size)
+    f.SetIndex(index)
+    img2d = f.Execute(img3d)
+    return img2d
+
+
+def load_mask2d_with_orientation(
+    nifti_path: str, slice_index: Optional[int] = None, axis: int = 2
+) -> SliceIO:
+    """
+    Load a 2D mask from a NIfTI file (either directly 2D or extracted from 3D),
+    and return the mask plus spacing, origin, and the in-plane 2×2 direction matrix.
+
+    Args:
+        nifti_path: path to NIfTI file.
+        slice_index: required if the file is 3D; index of the slice to extract.
+        axis: which axis to slice on for 3D data (0, 1 or 2).
+
+    Returns:
+        SliceIO with (mask2d, spacing_xy, origin_xy, direction_2x2).
+    """
+    img = sitk.ReadImage(nifti_path)
+    dim = img.GetDimension()
+
+    if dim == 2:
+        img2d = img
+    elif dim == 3:
+        if slice_index is None:
+            raise ValueError("For 3D NIfTI you must provide slice_index.")
+        img2d = _extract_2d_from_3d(img, slice_index, axis=axis)
+    else:
+        raise ValueError(f"Unsupported image dimension: {dim}")
+
+    # mask2d as NumPy: shape (rows, cols) = (y, x)
+    mask2d = sitk.GetArrayFromImage(img2d).astype(np.uint8)
+
+    spacing = img2d.GetSpacing()  # (sx, sy)
+    origin = img2d.GetOrigin()  # (ox, oy)
+    direction = img2d.GetDirection()  # tuple length=4 for 2D
+
+    spacing_xy = (float(spacing[0]), float(spacing[1]))
+    origin_xy = (float(origin[0]), float(origin[1]))
+    direction_2x2 = np.array(direction, dtype=float).reshape(2, 2)
+
+    return SliceIO(
+        mask2d=mask2d,
+        spacing_xy=spacing_xy,
+        origin_xy=origin_xy,
+        direction_2x2=direction_2x2,
+    )
 
 
 # -----------------------------------------------------------------------------

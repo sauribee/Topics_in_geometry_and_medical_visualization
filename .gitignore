@@ -1,9 +1,13 @@
-__pycache__/
-*.py[cod]
-*.egg-info/
+﻿# Local env & caches
 .venv/
-.env
-.ipynb_checkpoints/
-data/raw/
-data/external/
-.DS_Store
+__pycache__/
+.pytest_cache/
+
+# Medical data & artifacts
+reports/interim/
+*.nii
+*.nii.gz
+*.dcm
+
+# Optional: generated meshes
+# *.ply

@@ -260,16 +260,72 @@ class ContourExtractionConfig:
 # ---------------------------------------------------------------------------
 
 
+def rc_to_physical_xy(
+    points_rc: np.ndarray,
+    spacing_xy: Tuple[float, float],
+    origin_xy: Tuple[float, float],
+    direction_2x2: Optional[np.ndarray] = None,
+) -> np.ndarray:
+    """
+    Map pixel coordinates (row, col) to physical coordinates (x, y) using spacing,
+    origin, and the 2x2 in-plane direction-cosines matrix.
+
+    Skimage's find_contours returns coordinates as (row, col); we internally
+    construct the vector [col, row]^T to match the convention for the linear map:
+
+        [x, y]^T = [ox, oy]^T + D * diag(sx, sy) * [col, row]^T
+
+    Args:
+        points_rc:  array (N, 2) with columns [row, col]
+        spacing_xy: (sx, sy)
+        origin_xy:  (ox, oy)
+        direction_2x2: 2x2 direction-cosines; if None, identity is used.
+
+    Returns:
+        array (N, 2) with physical coordinates (x, y)
+    """
+    if points_rc.size == 0:
+        return points_rc.copy()
+
+    sx, sy = float(spacing_xy[0]), float(spacing_xy[1])
+    ox, oy = float(origin_xy[0]), float(origin_xy[1])
+    D = (
+        np.eye(2, dtype=float)
+        if direction_2x2 is None
+        else np.array(direction_2x2, dtype=float).reshape(2, 2)
+    )
+
+    cols = points_rc[:, 1]
+    rows = points_rc[:, 0]
+    ij = np.vstack([cols, rows])  # shape (2, N), note [col; row]
+
+    A = D @ np.diag([sx, sy])  # 2×2
+    xy = (A @ ij).T + np.array([ox, oy], dtype=float)
+    return xy
+
+
 def extract_primary_contour(
     mask: np.ndarray,
     *,
     config: Optional[ContourExtractionConfig] = None,
+    direction_2x2: Optional[np.ndarray] = None,
 ) -> ArrayF:
     """
     Extract the primary (outer) closed contour from a 2D binary mask and return
-    an evenly resampled polygon in physical (x,y) coordinates.
+    an evenly resampled polygon in physical (x, y) coordinates.
 
-    Robust to: touching-frame artifacts, all-ones masks (via padding or erosion), and padding fallback.
+    Orientation-aware: maps (row, col) pixel coordinates to physical (x, y) using
+        [x, y]^T = [ox, oy]^T + D * diag(sx, sy) * [col, row]^T,
+    where (sx, sy) are pixel spacings, (ox, oy) is the physical origin, and
+    D ∈ R^{2×2} is the in-plane direction-cosines matrix. If neither the function
+    argument `direction_2x2` nor `config.direction_2x2` is provided, the identity
+    is assumed (backward-compatible behavior).
+
+    Robust to: touching-frame artifacts, all-ones masks (via padding or erosion),
+    and padding fallback.
+
+    Raises:
+        ValueError: if no usable contour can be found or mask is degenerate.
     """
     cfg = config or ContourExtractionConfig()
 
@@ -289,32 +345,48 @@ def extract_primary_contour(
     sx, sy = cfg.spacing_xy
     ox, oy = cfg.origin_xy
 
+    # Resolve direction matrix: prefer explicit arg, otherwise from config, otherwise identity.
+    D = direction_2x2
+    if D is None:
+        D = getattr(cfg, "direction_2x2", None)
+    if D is None:
+        D = np.eye(2, dtype=float)
+    else:
+        D = np.array(D, dtype=float).reshape(2, 2)
+
     def rc_to_xy(cont: ArrayF) -> ArrayF:
+        """
+        Map (row, col) -> (x, y) using: [x, y]^T = [ox, oy]^T + D * diag(sx, sy) * [col, row]^T.
+        Skimage returns (row, col) in that order; note the [col; row] stacking below.
+        """
+        if cont.size == 0:
+            return cont.copy()
         col = cont[:, 1]
         row = cont[:, 0]
-        x = ox + col * sx
-        y = oy + row * sy
-        return np.column_stack([x, y])
+        ij = np.vstack([col, row])  # shape (2, N) = [col; row]
+        A = D @ np.diag([sx, sy])  # 2×2
+        xy = (A @ ij).T + np.array([ox, oy], float)  # (N, 2)
+        return xy
 
-    # --- CASO ESPECIAL: máscara uniforme -------------------------------
+    # --- SPECIAL CASE: uniform mask ------------------------------------
     uniq = np.unique(m)
     if uniq.size == 1:
         if not uniq[0]:
             raise ValueError("All-zero mask: no contour exists.")
-        # All-ones: crear borde interno de forma determinista.
-        # Opción A: padding → contorno interior (preferible, no toca frame tras deshacer padding)
+        # All-ones: create an inner boundary deterministically.
+        # Option A: padding -> inner contour (preferred; avoids touching the frame after unpadding)
         if cfg.pad_on_boundary:
             pad = max(1, int(cfg.pad_width))
             mp = np.pad(m.astype(np.uint8), pad, mode="constant", constant_values=0)
             padded = find_contours(mp.astype(float), level=cfg.level)
-            # Deshacer padding y recortar a la ventana válida
+            # Undo padding and clip back to valid window
             shifted: list[ArrayF] = []
             for c in padded:
                 c2 = c - pad
                 c2[:, 0] = np.clip(c2[:, 0], 0, H - 1)
                 c2[:, 1] = np.clip(c2[:, 1], 0, W - 1)
                 shifted.append(c2)
-            # Filtrar contornos pegados al marco con tolerancia estricta
+            # Filter frame-hugging contours with strict tolerance
             non_frame, _ = _filter_frame_contours(shifted, (H, W), tol=cfg.frame_tol)
             if len(non_frame) > 0:
                 candidates_xy = [
@@ -327,7 +399,7 @@ def extract_primary_contour(
                 if cfg.ensure_ccw and signed_area_2d(outer_xy) < 0.0:
                     outer_xy = outer_xy[::-1]
                 return resample_closed_polyline(outer_xy, n=max(cfg.min_points, 3))
-        # Opción B: erosión iterativa (si padding no se usa o falla)
+        # Option B: iterative erosion (if padding is disabled or fails)
         if cfg.erosion_last_resort:
             m_er = m.copy()
             for _ in range(max(1, int(cfg.erosion_iters))):
@@ -345,11 +417,11 @@ def extract_primary_contour(
                 "All-ones mask and padding disabled; enable pad_on_boundary or erosion_last_resort."
             )
 
-    # --- PASO 1: extracción directa ------------------------------------
+    # --- STEP 1: direct extraction -------------------------------------
     contours_rc = find_contours(m.astype(float), level=cfg.level)
     non_frame, _ = _filter_frame_contours(contours_rc, (H, W), tol=cfg.frame_tol)
 
-    # --- PASO 2: padding fallback si no hay candidatos ------------------
+    # --- STEP 2: padding fallback if no candidates ----------------------
     if len(non_frame) == 0 and cfg.pad_on_boundary:
         pad = max(1, int(cfg.pad_width))
         mp = np.pad(m.astype(np.uint8), pad, mode="constant", constant_values=0)
@@ -362,7 +434,7 @@ def extract_primary_contour(
             shifted.append(c2)
         non_frame, _ = _filter_frame_contours(shifted, (H, W), tol=cfg.frame_tol)
 
-    # --- PASO 3: erosión “último recurso” -------------------------------
+    # --- STEP 3: last-resort erosion -----------------------------------
     if len(non_frame) == 0 and cfg.erosion_last_resort:
         me = binary_erosion(m, footprint=_fp_rect(3, 3))
         if me.any():
@@ -380,7 +452,7 @@ def extract_primary_contour(
             f"does not fully cover the image."
         )
 
-    # Selección final por área
+    # Final selection by area
     candidates_xy = [rc_to_xy(np.asarray(c, dtype=np.float64)) for c in non_frame]
     areas = np.array([abs(signed_area_2d(c)) for c in candidates_xy], dtype=np.float64)
     outer_xy = candidates_xy[int(np.argmax(areas))]

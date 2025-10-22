@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Tuple, Optional, Dict, Any
 
 import numpy as np
 from numpy.typing import NDArray
@@ -16,8 +16,6 @@ from .contour_fit import (
     BSplineConfig,
     BezierPWResult,
     BSplineResult,
-    fit_contour_bezier_piecewise,
-    fit_contour_bspline_closed,
 )
 
 ArrayF = NDArray[np.float64]
@@ -47,9 +45,10 @@ class SliceMeta:
     origin_xy  : (ox, oy) in mm at pixel (row=0, col=0)
     """
 
-    spacing_xy: Tuple[float, float] = (1.0, 1.0)
-    origin_xy: Tuple[float, float] = (0.0, 0.0)
-    slice_id: Optional[str] = None  # human-readable identifier (optional)
+    spacing_xy: Tuple[float, float]
+    origin_xy: Tuple[float, float]
+    slice_id: str
+    direction_2x2: Optional[np.ndarray] = None
 
 
 @dataclass(frozen=True)
@@ -72,6 +71,21 @@ class RunnerConfig:
 # ---------------------------------------------------------------------------
 
 
+def process_slice(mask2d: np.ndarray, meta: SliceMeta, cfg) -> Dict[str, Any]:
+    """
+    Orquesta: extracción de contorno -> ajuste -> métricas/plots.
+    Pasa la matriz de dirección in-plane al extractor.
+    """
+    contour_xy = extract_primary_contour(
+        mask=mask2d,
+        config=cfg.contour if hasattr(cfg, "contour") else None,
+        direction_2x2=meta.direction_2x2,
+    )
+
+    out: Dict[str, Any] = {"contour_xy": contour_xy}
+    return out
+
+
 @dataclass(frozen=True)
 class SliceFitArtifacts:
     """
@@ -85,55 +99,6 @@ class SliceFitArtifacts:
     contour_xy: ArrayF
     bezier: BezierPWResult
     bspline: BSplineResult
-
-
-# ---------------------------------------------------------------------------
-# Processing
-# ---------------------------------------------------------------------------
-
-
-def process_slice(
-    mask2d: np.ndarray, meta: SliceMeta, cfg: RunnerConfig
-) -> SliceFitArtifacts:
-    """
-    Full per-slice processing: mask → contour_xy → (Bézier_pw, B-spline_closed).
-
-    Parameters
-    ----------
-    mask2d : (H,W) array-like
-        Binary or numeric mask; foreground > 0.5 is considered true if numeric.
-    meta : SliceMeta
-        Physical mapping (spacing, origin) for (x,y) coordinates.
-    cfg : RunnerConfig
-        Extraction and fitting parameters.
-
-    Returns
-    -------
-    SliceFitArtifacts
-    """
-    # Enforce physical mapping in the extraction config
-    cconf = ContourExtractionConfig(
-        level=cfg.contour.level,
-        fill_holes=cfg.contour.fill_holes,
-        simplify_tol=cfg.contour.simplify_tol,
-        min_points=cfg.contour.min_points,
-        ensure_ccw=cfg.contour.ensure_ccw,
-        spacing_xy=meta.spacing_xy,
-        origin_xy=meta.origin_xy,
-        pad_on_boundary=True,
-        pad_width=max(1, cfg.contour.pad_width),
-        frame_tol=cfg.contour.frame_tol,
-        erosion_last_resort=cfg.contour.erosion_last_resort,
-        erosion_iters=cfg.contour.erosion_iters,
-    )
-
-    contour_xy = extract_primary_contour(mask2d, config=cconf)
-
-    # Fit Bézier (piecewise) and B-spline (closed)
-    bzr = fit_contour_bezier_piecewise(contour_xy, cfg.bezier)
-    bsp = fit_contour_bspline_closed(contour_xy, cfg.bspline)
-
-    return SliceFitArtifacts(contour_xy=contour_xy, bezier=bzr, bspline=bsp)
 
 
 # ---------------------------------------------------------------------------
