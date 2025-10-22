@@ -11,3 +11,8 @@ reports/interim/
 
 # Optional: generated meshes
 # *.ply
+
+# Packaging artifacts
+*.egg-info/
+build/
+dist/
