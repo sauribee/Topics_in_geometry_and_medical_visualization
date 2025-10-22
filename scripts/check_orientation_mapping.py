@@ -36,8 +36,8 @@ from skimage.measure import find_contours
 
 # Import your project modules (adjust path if needed)
 # Assumes this script runs from repo root or PYTHONPATH includes the module folder.
-from contour_slice_io import load_mask2d_with_orientation
-from contour2d import (
+from medvis.geometry.contour_slice_io import load_mask2d_with_orientation
+from medvis.geometry.contour2d import (
     rc_to_physical_xy,
     extract_primary_contour,
     ContourExtractionConfig,
