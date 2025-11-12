@@ -33,7 +33,7 @@ def load_skull_data(data_dir: Path) -> dict:
 
 def extract_protuberance(skull_data: dict, y_threshold: float = 50.0) -> np.ndarray:
     full = skull_data["full"]
-    mask = full[:, 1] > y_threshold
+    mask = full[:, 1] < y_threshold
     protuberance = full[mask]
 
     if protuberance.shape[0] > 0:
@@ -55,11 +55,11 @@ def sample_uniform_points(contour: np.ndarray, n_samples: int) -> np.ndarray:
 def plot_protuberance_approximation(
     protuberance: np.ndarray,
     samples_5: np.ndarray,
-    samples_10: np.ndarray,
-    samples_15: np.ndarray,
+    samples_6: np.ndarray,
+    samples_7: np.ndarray,
     curve_5: BezierCurve,
-    curve_10: BezierCurve,
-    curve_15: BezierCurve,
+    curve_6: BezierCurve,
+    curve_7: BezierCurve,
     out_png: Path,
 ) -> None:
     out_png.parent.mkdir(parents=True, exist_ok=True)
@@ -70,8 +70,8 @@ def plot_protuberance_approximation(
 
     configs = [
         (axes[0], samples_5, curve_5, "5 points"),
-        (axes[1], samples_10, curve_10, "10 points"),
-        (axes[2], samples_15, curve_15, "15 points"),
+        (axes[1], samples_6, curve_6, "6 points"),
+        (axes[2], samples_7, curve_7, "7 points"),
     ]
 
     for ax, samples, curve, title in configs:
@@ -168,42 +168,42 @@ def main() -> None:
     )
 
     samples_5 = sample_uniform_points(protuberance, 5)
-    samples_10 = sample_uniform_points(protuberance, 10)
-    samples_15 = sample_uniform_points(protuberance, 15)
+    samples_6 = sample_uniform_points(protuberance, 6)
+    samples_7 = sample_uniform_points(protuberance, 7)
 
     u_5 = chord_parameterization(samples_5, alpha=1.0, normalize=True)
-    u_10 = chord_parameterization(samples_10, alpha=1.0, normalize=True)
-    u_15 = chord_parameterization(samples_15, alpha=1.0, normalize=True)
+    u_6 = chord_parameterization(samples_6, alpha=1.0, normalize=True)
+    u_7 = chord_parameterization(samples_7, alpha=1.0, normalize=True)
 
     curve_5 = fit_bezier_interpolate(samples_5, params=u_5)
-    curve_10 = fit_bezier_interpolate(samples_10, params=u_10)
-    curve_15 = fit_bezier_interpolate(samples_15, params=u_15)
+    curve_6 = fit_bezier_interpolate(samples_6, params=u_6)
+    curve_7 = fit_bezier_interpolate(samples_7, params=u_7)
 
     print("\nBézier approximations:")
-    print(f"  5 points: degree {curve_5.degree}")
-    print(f" 10 points: degree {curve_10.degree}")
-    print(f" 15 points: degree {curve_15.degree}")
+    print(f" 5 points: degree {curve_5.degree}")
+    print(f" 6 points: degree {curve_6.degree}")
+    print(f" 7 points: degree {curve_7.degree}")
 
     plot_protuberance_approximation(
         protuberance,
         samples_5,
-        samples_10,
-        samples_15,
+        samples_6,
+        samples_7,
         curve_5,
-        curve_10,
-        curve_15,
+        curve_6,
+        curve_7,
         args.out_dir / "protuberance_comparison.png",
     )
     print(f"\nGenerated: {args.out_dir / 'protuberance_comparison.png'}")
 
     error_5 = compute_approximation_error(protuberance, curve_5)
-    error_10 = compute_approximation_error(protuberance, curve_10)
-    error_15 = compute_approximation_error(protuberance, curve_15)
+    error_6 = compute_approximation_error(protuberance, curve_6)
+    error_7 = compute_approximation_error(protuberance, curve_7)
 
     print("\nMean approximation errors:")
     print(f"  5 points: {error_5:.3f} pixels")
-    print(f" 10 points: {error_10:.3f} pixels")
-    print(f" 15 points: {error_15:.3f} pixels")
+    print(f"  6 points: {error_6:.3f} pixels")
+    print(f"  7 points: {error_7:.3f} pixels")
 
     out_csv = args.out_dir / "protuberance_data.csv"
     out_csv.parent.mkdir(parents=True, exist_ok=True)
@@ -211,7 +211,7 @@ def main() -> None:
         out_csv, protuberance, delimiter=",", header="x,y", comments="", fmt="%.3f"
     )
 
-    for n, samples in [(5, samples_5), (10, samples_10), (15, samples_15)]:
+    for n, samples in [(5, samples_5), (6, samples_6), (7, samples_7)]:
         np.savetxt(
             args.out_dir / f"samples_{n}pts.csv",
             samples,
@@ -227,9 +227,9 @@ def main() -> None:
         f.write(f"Y threshold: {args.y_threshold} pixels\n")
         f.write(f"Total protuberance points: {protuberance.shape[0]}\n\n")
         f.write("Bézier Approximations:\n")
-        f.write(f"  5 points: degree {curve_5.degree}, error = {error_5:.3f} px\n")
-        f.write(f" 10 points: degree {curve_10.degree}, error = {error_10:.3f} px\n")
-        f.write(f" 15 points: degree {curve_15.degree}, error = {error_15:.3f} px\n")
+        f.write(f" 5 points: degree {curve_5.degree}, error = {error_5:.3f} px\n")
+        f.write(f" 6 points: degree {curve_6.degree}, error = {error_6:.3f} px\n")
+        f.write(f" 7 points: degree {curve_7.degree}, error = {error_7:.3f} px\n")
 
     print(f"\nReport completed in: {args.out_dir.resolve()}")
 
