@@ -2,11 +2,11 @@
 
 A modular Python project for **geometric modeling with Bézier/B‑splines**, **medical contour analysis**, **numerical stability in curve fitting**, and **2D/3D visualization**. The repository follows a modern `src/` layout and is designed for **reproducibility** (tests, pre‑commit hooks, automated analysis scripts).
 
----
+______________________________________________________________________
 
 ## Repository Structure
 
-```
+```bash
 Topics_in_geometry_and_medical_visualization/
 ├── src/medvis/                    # Python package (installable via pip install -e .)
 │   ├── __init__.py
@@ -69,15 +69,17 @@ Topics_in_geometry_and_medical_visualization/
 └── README.md                      # This file
 ```
 
----
+______________________________________________________________________
 
 ## Quickstart
 
 ### Prerequisites
+
 - **Python 3.12+** (tested on 3.12)
 - Recommended: a virtual environment (`venv` or conda)
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/<your-username>/Topics_in_geometry_and_medical_visualization.git
@@ -99,17 +101,22 @@ pre-commit install
 The `scripts/` folder contains ready-to-use analysis pipelines:
 
 #### 1. Skull Protuberance Analysis (Bézier LSQ Fitting)
+
 Analyzes skull contour protuberance with 6 different degree configurations (5-10):
+
 ```bash
 python scripts/skull_protuberance_analysis.py \
     --data-dir data/skull \
     --out-dir reports/figures/skull_protuberance \
     --y-threshold 50
 ```
+
 **Output:** 2x3 grid comparing LSQ degrees 5, 6, 7, 8, 9, 10
 
 #### 2. Skull Lemniscate Interpolation
+
 Fits lemniscate-shaped curves to skull boundary:
+
 ```bash
 python scripts/skull_lemniscate_interpolation.py \
     --data-dir data/skull \
@@ -118,29 +125,37 @@ python scripts/skull_lemniscate_interpolation.py \
 ```
 
 #### 3. Synthetic Ellipse Analysis
+
 Compares Bézier interpolation, LSQ, and B-spline methods on synthetic ellipse data:
+
 ```bash
 python scripts/synthetic_ellipse_report.py
 ```
 
 #### 4. Comprehensive Synthetic Contours Report
+
 Generates detailed analysis of various synthetic contours:
+
 ```bash
 python scripts/generate_synthetic_contours_report.py
 ```
 
 ### Data Structure
+
 The project includes skull contour data in `data/skull/`:
+
 - Left and right skull borders (X and Y coordinates)
 - Text format, space-separated values
 - Used for demonstrating Bézier and B-spline fitting
 
----
+______________________________________________________________________
 
 ## Key Features
 
 ### Geometric Modeling
+
 - **Bézier Curves** (`geometry/bezier.py`)
+
   - Numerically stable Bernstein matrix computation (log-space for high degrees)
   - Chord-length, arc-chord, and centripetal parameterization
   - Interpolation (for N ≤ 10 points) and LSQ approximation (stable for any N)
@@ -148,45 +163,53 @@ The project includes skull contour data in `data/skull/`:
   - De Casteljau evaluation and subdivision
 
 - **Piecewise Cubic Bézier** (`geometry/bezier_piecewise.py`)
+
   - Adaptive curve subdivision with error control
   - C1 continuity enforcement at joints
   - Robust for large point sets (no numerical instability)
 
 - **B-splines** (`geometry/bspline.py`)
+
   - Open uniform B-spline interpolation
   - Averaged knot vector generation
   - Cox-de Boor evaluation
 
 ### Contour Processing
+
 - 2D contour smoothing, resampling, and filtering (`geometry/contour2d.py`)
 - Outlier detection and removal (`preprocess/outliers.py`)
 - Arc-length parameterization for uniform sampling
 - 3D lofting from multiple 2D contours (`geometry/loft3d.py`)
 
 ### Numerical Stability
+
 **Critical improvements for high-degree curve fitting:**
+
 - Log-space computation prevents overflow in binomial coefficients (n > 20)
 - SVD-based least-squares solving for ill-conditioned systems
 - User warnings when degree > 15 (interpolation) or > 20 (LSQ)
 - Condition number monitoring for Bernstein matrices
 
 **Best practices implemented:**
+
 - Use LSQ approximation (degree 5-15) instead of high-degree interpolation
 - Piecewise cubic Bézier for complex shapes (automatic segmentation)
 - Arc-length uniform sampling instead of index-based sampling
 
----
+______________________________________________________________________
 
 ## Development
 
 ### Testing
 
 Run all tests:
+
 ```bash
 pytest -q
 ```
 
 Run specific test modules:
+
 ```bash
 pytest tests/test_bezier_param.py -v
 pytest tests/test_import.py -v
@@ -197,6 +220,7 @@ Tests use synthetic data for reproducibility (no external dependencies).
 ### Code Quality
 
 Pre-commit hooks are configured for automatic formatting:
+
 ```bash
 # Run on all files
 pre-commit run --all-files
@@ -206,22 +230,26 @@ pre-commit run
 ```
 
 **Tools configured:**
+
 - **Ruff**: Fast Python linter (replaces flake8, isort)
 - **Black**: Code formatter
 - **nbstripout**: Remove notebook outputs before commit
 
 ### Project Structure Best Practices
+
 - `src/` layout for installable package
 - Separate `scripts/` for analysis pipelines
 - `reports/` for reproducible outputs (figures, CSV, models)
 - `tests/` with pytest for unit/integration tests
 
----
+______________________________________________________________________
 
 ## Dependencies
 
 ### Runtime (Core)
+
 Defined in `requirements.txt`:
+
 - **Numerical:** `numpy>=2.1`, `scipy>=1.14`
 - **Geometry:** `bezier>=2024.6.20`
 - **Image Processing:** `scikit-image>=0.25.2`, `opencv-python-headless`
@@ -229,19 +257,23 @@ Defined in `requirements.txt`:
 - **Medical I/O:** `SimpleITK`, `pydicom`, `nibabel`
 
 ### Development Tools
+
 Included in `requirements.txt`:
+
 - **Testing:** `pytest`
 - **Code Quality:** `pre-commit`, `ruff`, `black`, `jupytext`, `nbstripout`
 
-### Installation
+### Installation (Core)
+
 All dependencies are installed via:
+
 ```bash
 pip install -e .
 ```
 
 This installs both runtime and development dependencies from `requirements.txt`.
 
----
+______________________________________________________________________
 
 ## Output Examples
 
@@ -250,21 +282,25 @@ This installs both runtime and development dependencies from `requirements.txt`.
 All scripts generate structured outputs in `reports/`:
 
 - **Figures** (`reports/figures/`): PNG plots with matplotlib/PyVista
+
   - Comparison grids (2x3, 1x3 layouts)
   - Overlay plots with original data + fitted curves
   - Error visualizations
 
 - **CSV Data** (`reports/csv/`): Exported contour points, samples, and parameters
+
   - Original contour points
   - Sampled points for visualization
   - Curve evaluation points
 
 - **Models** (`reports/models/`): JSON-serialized curve models
+
   - Control points
   - Degree information
   - Parameterization metadata
 
 ### Example Output Structure
+
 ```bash
 reports/figures/skull_protuberance/
 ├── protuberance_comparison.png      # 2x3 grid (degrees 5-10)
@@ -276,11 +312,12 @@ reports/figures/skull_protuberance/
 └── approximation_summary.txt        # Numerical error report
 ```
 
----
+______________________________________________________________________
 
 ## Project Philosophy
 
 ### Numerical Stability First
+
 This project emphasizes **robust numerical methods** over naive implementations:
 
 - High-degree polynomial interpolation is **inherently unstable** (Runge's phenomenon)
@@ -289,75 +326,63 @@ This project emphasizes **robust numerical methods** over naive implementations:
 - Arc-length sampling ensures geometric uniformity
 
 ### Reproducibility
+
 - All analysis scripts are self-contained
 - Outputs are versioned and timestamped
 - Tests ensure consistent behavior across environments
 - Pre-commit hooks maintain code quality
 
 ### Educational Value
+
 The codebase serves as a reference for:
+
 - Numerical methods in geometric modeling
 - Best practices for curve fitting
 - Scientific Python project structure
 - Reproducible computational workflows
 
----
-
-## Troubleshooting
-
-### Common Issues
-
-**Q: "High-degree Bézier interpolation produces strange curves"**
-- A: This is expected for N > 15 points. Use `fit_bezier_lsq()` with degree=10-12 instead.
-
-**Q: "ImportError: No module named 'medvis'"**
-- A: Run `pip install -e .` from the repository root.
-
-**Q: "Tests fail with vtk/pyvista errors"**
-- A: Ensure you have a display (or use `matplotlib.use('Agg')` for headless environments).
-
-**Q: "Pre-commit hooks fail"**
-- A: Run `pre-commit run --all-files` to see specific issues, then `black .` and `ruff check --fix .`
-
----
+______________________________________________________________________
 
 ## Contributing
 
 Contributions are welcome! Please:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes with tests
-4. Run pre-commit hooks (`pre-commit run --all-files`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+1. Create a feature branch (`git checkout -b feature/amazing-feature`)
+1. Make your changes with tests
+1. Run pre-commit hooks (`pre-commit run --all-files`)
+1. Commit your changes (`git commit -m 'Add amazing feature'`)
+1. Push to the branch (`git push origin feature/amazing-feature`)
+1. Open a Pull Request
 
 ### Code Style
+
 - Follow PEP 8 (enforced by Ruff and Black)
 - Add docstrings to public functions (NumPy style preferred)
 - Include type hints where appropriate
 - Write tests for new functionality
 
----
+______________________________________________________________________
 
 ## License
 
 MIT License - see LICENSE file for details.
 
----
+______________________________________________________________________
 
 ## Contact
 
 For questions, issues, or collaboration:
+
 - Open an issue on GitHub
 - See `pyproject.toml` for project metadata
 
----
+______________________________________________________________________
 
 ## Acknowledgments
 
 This project builds upon:
+
 - **Numerical methods**: De Casteljau algorithm, Cox-de Boor recursion
 - **Python ecosystem**: NumPy, SciPy, matplotlib, PyVista
 - **Medical imaging**: SimpleITK, pydicom, NiBabel
