@@ -1,0 +1,10 @@
+Skull Protuberance Approximation Summary
+========================================
+
+Y threshold: 50.0 pixels
+Total protuberance points: 362
+
+Bézier Approximations:
+  5 points: degree 4, error = 28.348 px
+ 10 points: degree 9, error = 4.847 px
+ 15 points: degree 14, error = 5.149 px
