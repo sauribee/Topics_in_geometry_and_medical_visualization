@@ -1,4 +1,8 @@
 [
+  "tests/test_bezier_param.py::test_arc_chord_monotone_and_bounds",
+  "tests/test_bezier_param.py::test_arclength_degenerate_curve_uniform",
+  "tests/test_bezier_param.py::test_arclength_equal_chords_cubic",
+  "tests/test_bezier_param.py::test_arclength_uniform_line",
   "tests/test_import.py::test_import",
   "tests/test_io_synthetic.py::test_spacing_xyz_synthetic",
   "tests/test_synthetic_ellipse_overlay.py::test_elliptical_overlay_tmp_png",

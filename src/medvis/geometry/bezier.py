@@ -12,6 +12,11 @@ __all__ = [
     "BezierCurve",
     "de_casteljau",
     "chord_parameterization",
+    "arc_chord_parameterization",
+    "arclength_parameterization",
+    "bernstein_matrix",
+    "fit_bezier_interpolate",
+    "fit_bezier_lsq",
     "fit_cubic_bezier",
 ]
 
@@ -58,6 +63,51 @@ def chord_parameterization(
     if normalize and u[-1] > 0:
         u /= u[-1]
     return u
+
+
+def arc_chord_parameterization(
+    curve: "BezierCurve",
+    *,
+    samples: int = 1024,
+    normalize: bool = True,
+) -> Tuple[ArrayF, ArrayF]:
+    ts = np.linspace(0.0, 1.0, int(samples))
+    P = curve.evaluate_batch(ts)
+    seg = np.linalg.norm(np.diff(P, axis=0), axis=1)
+    s = np.concatenate(([0.0], np.cumsum(seg)))
+    L = s[-1]
+    if normalize and L > 1e-12:
+        s = s / L
+    return ts, s
+
+
+def arclength_parameterization(
+    curve: "BezierCurve",
+    n: int,
+    *,
+    samples: int = 4096,
+) -> ArrayF:
+    if n < 2:
+        raise ValueError("n must be >= 2")
+    ts, s = arc_chord_parameterization(curve, samples=samples, normalize=True)
+    targets = np.linspace(0.0, 1.0, int(n))
+    if not np.isfinite(s).all():
+        return targets
+    if s[-1] <= 1e-12:
+        return targets
+
+    mask = np.ones_like(s, dtype=bool)
+    ds = np.diff(s)
+    if ds.size > 0:
+        mask[1:] = ds > 1e-15
+    s_u = s[mask]
+    ts_u = ts[mask]
+
+    if s_u.size < 2:
+        return targets
+
+    tvals = np.interp(targets, s_u, ts_u)
+    return tvals
 
 
 # ---------------------------------------------------------------------------
@@ -324,3 +374,63 @@ def fit_cubic_bezier(
 
     cps = np.vstack([P0, P1, P2, P3])
     return BezierCurve(cps)
+
+
+# ---------------------------------------------------------------------------
+# General Bézier fitting (interpolation and least squares)
+# ---------------------------------------------------------------------------
+
+
+def bernstein_matrix(n: int, t: ArrayF) -> ArrayF:
+    tt = np.asarray(t, dtype=np.float64).ravel()
+    i = np.arange(n + 1)
+    from math import comb
+
+    c = np.array([comb(n, k) for k in i], dtype=np.float64)
+    T = tt[:, None]
+    B = c[None, :] * (T ** i[None, :]) * ((1.0 - T) ** (n - i)[None, :])
+    return B
+
+
+def fit_bezier_interpolate(
+    points: ArrayF,
+    *,
+    params: Optional[ArrayF] = None,
+    parameterization_alpha: float = 1.0,
+) -> BezierCurve:
+    X = np.asarray(points, dtype=np.float64)
+    if X.ndim != 2 or X.shape[0] < 2:
+        raise ValueError("points must have shape (N,d), N>=2")
+    N = X.shape[0]
+    n = N - 1
+    if params is None:
+        u = chord_parameterization(X, alpha=parameterization_alpha, normalize=True)
+    else:
+        u = np.asarray(params, dtype=np.float64).ravel()
+    if u.shape[0] != N:
+        raise ValueError("params length must match number of points")
+    A = bernstein_matrix(n, u)
+    C, *_ = np.linalg.lstsq(A, X, rcond=None)
+    return BezierCurve(C)
+
+
+def fit_bezier_lsq(
+    points: ArrayF,
+    degree: int,
+    *,
+    params: Optional[ArrayF] = None,
+    parameterization_alpha: float = 1.0,
+) -> BezierCurve:
+    X = np.asarray(points, dtype=np.float64)
+    if X.ndim != 2 or X.shape[0] < 2:
+        raise ValueError("points must have shape (N,d), N>=2")
+    n = int(degree)
+    if n < 1:
+        raise ValueError("degree must be >= 1")
+    if params is None:
+        u = chord_parameterization(X, alpha=parameterization_alpha, normalize=True)
+    else:
+        u = np.asarray(params, dtype=np.float64).ravel()
+    A = bernstein_matrix(n, u)
+    C, *_ = np.linalg.lstsq(A, X, rcond=None)
+    return BezierCurve(C)
