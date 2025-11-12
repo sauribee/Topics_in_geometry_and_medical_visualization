@@ -1,0 +1,14 @@
+Stable Skull Protuberance Approximation Summary
+==================================================
+
+APPROACH: Least-squares approximation (NOT interpolation)
+This avoids numerical instability of high-degree interpolation.
+
+Y threshold: 50.0 pixels
+Total protuberance points: 56
+
+Approximation Results:
+  Degree 5: error = 2.016 px
+  Degree 10: error = 0.936 px
+  Degree 15: error = 0.700 px
+  Degree 20: error = 0.459 px

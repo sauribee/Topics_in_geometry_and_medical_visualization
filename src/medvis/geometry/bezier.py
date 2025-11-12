@@ -381,14 +381,80 @@ def fit_cubic_bezier(
 # ---------------------------------------------------------------------------
 
 
-def bernstein_matrix(n: int, t: ArrayF) -> ArrayF:
+def bernstein_matrix(n: int, t: ArrayF, *, stable: bool = True) -> ArrayF:
+    """
+    Compute Bernstein matrix for degree n at parameters t.
+
+    Parameters
+    ----------
+    n : int
+        Degree of Bernstein polynomials
+    t : array-like
+        Parameter values in [0, 1]
+    stable : bool, optional
+        If True, use numerically stable log-space computation for n > 20.
+        Default is True.
+
+    Returns
+    -------
+    B : (len(t), n+1) array
+        Bernstein basis matrix
+
+    Warnings
+    --------
+    For n > 20, the matrix becomes increasingly ill-conditioned.
+    For n > 40, even stable computation may fail.
+    Consider using piecewise Bézier or B-splines instead.
+    """
     tt = np.asarray(t, dtype=np.float64).ravel()
     i = np.arange(n + 1)
-    from math import comb
 
-    c = np.array([comb(n, k) for k in i], dtype=np.float64)
-    T = tt[:, None]
-    B = c[None, :] * (T ** i[None, :]) * ((1.0 - T) ** (n - i)[None, :])
+    if stable and n > 20:
+        # Use log-space computation to avoid overflow/underflow
+        from scipy.special import gammaln
+
+        # log(comb(n, k)) = log(n!) - log(k!) - log((n-k)!)
+        log_comb = gammaln(n + 1) - gammaln(i + 1) - gammaln(n - i + 1)
+
+        T = tt[:, None]
+
+        # Compute log of Bernstein basis, handling edge cases
+        with np.errstate(divide="ignore", invalid="ignore"):
+            log_T = np.where(T > 0, np.log(T), -np.inf)
+            log_1mT = np.where((1 - T) > 0, np.log(1 - T), -np.inf)
+
+            log_B = log_comb[None, :] + i[None, :] * log_T + (n - i)[None, :] * log_1mT
+
+            # Handle special cases where t=0 or t=1
+            B = np.where(np.isfinite(log_B), np.exp(log_B), 0.0)
+
+            # Fix endpoints explicitly
+            B[tt == 0, 1:] = 0.0
+            B[tt == 0, 0] = 1.0
+            B[tt == 1, :-1] = 0.0
+            B[tt == 1, -1] = 1.0
+    else:
+        # Standard computation for low degrees
+        from math import comb
+
+        c = np.array([comb(n, k) for k in i], dtype=np.float64)
+        T = tt[:, None]
+
+        # Use stable power computation
+        with np.errstate(invalid="ignore", divide="ignore"):
+            B = (
+                c[None, :]
+                * np.power(T, i[None, :])
+                * np.power(1.0 - T, (n - i)[None, :])
+            )
+            B = np.nan_to_num(B, nan=0.0, posinf=0.0, neginf=0.0)
+
+            # Fix endpoints
+            B[tt == 0, 1:] = 0.0
+            B[tt == 0, 0] = 1.0
+            B[tt == 1, :-1] = 0.0
+            B[tt == 1, -1] = 1.0
+
     return B
 
 
@@ -397,20 +463,90 @@ def fit_bezier_interpolate(
     *,
     params: Optional[ArrayF] = None,
     parameterization_alpha: float = 1.0,
+    use_svd: bool = True,
+    rcond_svd: float = 1e-10,
 ) -> BezierCurve:
+    """
+    Fit a Bézier curve of degree N-1 through N points by interpolation.
+
+    Parameters
+    ----------
+    points : (N, d) array
+        Points to interpolate
+    params : (N,) array, optional
+        Parameter values. If None, uses chord-length parameterization.
+    parameterization_alpha : float, optional
+        Exponent for parameterization (1.0 = chord, 0.5 = centripetal)
+    use_svd : bool, optional
+        If True, use SVD-based least squares with conditioning control.
+        Recommended for N > 20. Default is True.
+    rcond_svd : float, optional
+        Cutoff for small singular values. Default 1e-10.
+
+    Returns
+    -------
+    curve : BezierCurve
+        Interpolating Bézier curve of degree N-1
+
+    Warnings
+    --------
+    High-degree Bézier interpolation (N > 20) is numerically unstable and
+    may produce oscillations. For many points, consider:
+    - Piecewise cubic Bézier (fit_piecewise_cubic_bezier)
+    - B-spline interpolation (fit_bspline_interpolate)
+    - Least-squares fitting with lower degree (fit_bezier_lsq)
+    """
+    import warnings
+
     X = np.asarray(points, dtype=np.float64)
     if X.ndim != 2 or X.shape[0] < 2:
         raise ValueError("points must have shape (N,d), N>=2")
     N = X.shape[0]
     n = N - 1
+
+    # Warn about high-degree interpolation
+    if n > 15:
+        warnings.warn(
+            f"High-degree Bézier interpolation (degree {n}) is numerically unstable. "
+            f"Consider using piecewise Bézier or B-splines for {N} points.",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    if n > 40:
+        warnings.warn(
+            f"Extremely high degree ({n}) may produce severe numerical artifacts. "
+            f"Results are likely unreliable.",
+            UserWarning,
+            stacklevel=2,
+        )
+
     if params is None:
         u = chord_parameterization(X, alpha=parameterization_alpha, normalize=True)
     else:
         u = np.asarray(params, dtype=np.float64).ravel()
     if u.shape[0] != N:
         raise ValueError("params length must match number of points")
-    A = bernstein_matrix(n, u)
-    C, *_ = np.linalg.lstsq(A, X, rcond=None)
+
+    # Build Bernstein matrix with stability improvements
+    A = bernstein_matrix(n, u, stable=True)
+
+    # Check condition number
+    cond = np.linalg.cond(A)
+    if cond > 1e12:
+        warnings.warn(
+            f"Bernstein matrix is very ill-conditioned (cond={cond:.2e}). "
+            f"Solution may be inaccurate.",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    # Solve using SVD for better numerical stability
+    if use_svd or n > 20:
+        C, *_ = np.linalg.lstsq(A, X, rcond=rcond_svd)
+    else:
+        C, *_ = np.linalg.lstsq(A, X, rcond=None)
+
     return BezierCurve(C)
 
 
@@ -420,17 +556,64 @@ def fit_bezier_lsq(
     *,
     params: Optional[ArrayF] = None,
     parameterization_alpha: float = 1.0,
+    rcond: Optional[float] = None,
 ) -> BezierCurve:
+    """
+    Fit a Bézier curve of specified degree by least squares.
+
+    Parameters
+    ----------
+    points : (N, d) array
+        Data points to approximate
+    degree : int
+        Degree of the Bézier curve (should be < N)
+    params : (N,) array, optional
+        Parameter values. If None, uses chord-length parameterization.
+    parameterization_alpha : float, optional
+        Exponent for parameterization (1.0 = chord, 0.5 = centripetal)
+    rcond : float, optional
+        Cutoff for small singular values in lstsq.
+        If None, uses machine precision * max(M, N).
+
+    Returns
+    -------
+    curve : BezierCurve
+        Least-squares fitted Bézier curve
+
+    Notes
+    -----
+    Least-squares fitting is generally more stable than interpolation,
+    but still suffers from ill-conditioning for high degrees.
+    For degree > 20, consider using B-splines or piecewise Bézier.
+    """
+    import warnings
+
     X = np.asarray(points, dtype=np.float64)
     if X.ndim != 2 or X.shape[0] < 2:
         raise ValueError("points must have shape (N,d), N>=2")
     n = int(degree)
     if n < 1:
         raise ValueError("degree must be >= 1")
+    if n >= X.shape[0]:
+        warnings.warn(
+            f"Degree {n} is >= number of points {X.shape[0]}. "
+            f"This is interpolation, not approximation.",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    if n > 20:
+        warnings.warn(
+            f"High-degree least-squares fitting (degree {n}) may be unstable.",
+            UserWarning,
+            stacklevel=2,
+        )
+
     if params is None:
         u = chord_parameterization(X, alpha=parameterization_alpha, normalize=True)
     else:
         u = np.asarray(params, dtype=np.float64).ravel()
-    A = bernstein_matrix(n, u)
-    C, *_ = np.linalg.lstsq(A, X, rcond=None)
+
+    A = bernstein_matrix(n, u, stable=(n > 20))
+    C, *_ = np.linalg.lstsq(A, X, rcond=rcond)
     return BezierCurve(C)
