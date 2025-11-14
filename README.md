@@ -1,6 +1,6 @@
 # Topics in Geometry and Medical Visualization (MedVis)
 
-A modular Python project for **geometric modeling with Bézier/B‑splines**, **medical contour analysis**, **numerical stability in curve fitting**, and **2D/3D visualization**. The repository follows a modern `src/` layout and is designed for **reproducibility** (tests, pre‑commit hooks, automated analysis scripts).
+A modular Python project for **geometric modeling with Bézier/B‑splines**, **medical contour analysis**, **numerical stability in curve fitting**, and **2D/3D visualization**.
 
 ______________________________________________________________________
 
@@ -32,11 +32,13 @@ Topics_in_geometry_and_medical_visualization/
 │   │   └── mesh_viz.py            # Mesh visualization utilities
 │   └── cli.py                     # CLI for reproducible pipelines
 ├── scripts/                       # Analysis and reporting scripts
-│   ├── bezier_bspline_interpolation_report.py  # Compare Bézier/B-spline methods
-│   ├── generate_synthetic_contours_report.py   # Generate synthetic data reports
-│   ├── skull_lemniscate_interpolation.py       # Skull lemniscate analysis
-│   ├── skull_protuberance_analysis.py          # Protuberance approximation (6 configs)
-│   └── synthetic_ellipse_report.py             # Ellipse fitting report
+│   ├── bezier_arc_chord_report.py              # Arc-chord parameterization analysis
+│   ├── bezier_interpolation_curves_report.py   # Bézier interpolation (circle, ellipse, etc.)
+│   ├── bezier_skull_approximation_report.py    # Skull LSQ approximation report
+│   ├── bezier_skull_interpolation_report.py    # Skull Bézier interpolation report
+│   ├── bspline_skull_interpolation_report.py   # Skull B-spline interpolation report
+│   ├── generate_synthetic_contours_report.py   # Comprehensive synthetic data analysis
+│   └── synthetic_ellipse_report.py             # Ellipse fitting comparison
 ├── data/                          # Data directory
 │   ├── skull/                     # Skull contour data (left/right borders)
 │   │   ├── borde_craneo_parte_izquierda_Eje_X.txt
@@ -49,10 +51,22 @@ Topics_in_geometry_and_medical_visualization/
 │   └── raw/                       # Raw data (DICOM/NIfTI if available)
 ├── reports/                       # Generated reports and outputs
 │   ├── figures/                   # Generated plots and visualizations
-│   │   ├── bezier_bspline_interpolation/  # Bézier vs B-spline comparisons
-│   │   ├── skull_lemniscate/      # Lemniscate fitting results
-│   │   ├── skull_protuberance/    # Protuberance analysis (LSQ deg 5-10)
-│   │   └── synthetic_report_*/    # Synthetic data analysis results
+│   │   ├── bezier_bsplines_reports/         # Bézier and B-spline analysis
+│   │   │   ├── arc_chord_parameterization/  # Arc-chord parameterization study
+│   │   │   ├── bezier_approximation_analysis/ # LSQ approximation comparisons
+│   │   │   ├── bezier_interpolation_analysis/ # Interpolation error analysis
+│   │   │   └── bezier_interpolation_curves/   # Geometric shapes (circle, ellipse, etc.)
+│   │   ├── skull_reports/                   # Skull contour analysis
+│   │   │   ├── bezier_skull_approximation/  # Skull LSQ Bézier approximation
+│   │   │   ├── bezier_skull_interpolation/  # Skull Bézier interpolation
+│   │   │   └── bspline_skull_interpolation/ # Skull B-spline interpolation
+│   │   └── synthetic_reports/               # Synthetic data analysis
+│   │       ├── synthetic_report_00/         # Circle analysis
+│   │       ├── synthetic_report_01/         # Ellipse analysis
+│   │       ├── synthetic_report_02/         # Parabola fragment
+│   │       ├── synthetic_report_03/         # Lemniscate
+│   │       ├── synthetic_report_04/         # Noisy perturbed curves
+│   │       └── synthetic_report_05/         # Additional synthetic shapes
 │   ├── csv/                       # Exported CSV data (contours, samples)
 │   └── models/                    # Serialized curve models (JSON)
 ├── tests/                         # Unit and functional tests (pytest)
@@ -100,45 +114,92 @@ pre-commit install
 
 The `scripts/` folder contains ready-to-use analysis pipelines:
 
-#### 1. Skull Protuberance Analysis (Bézier LSQ Fitting)
+#### 1. Skull Bézier Interpolation Report
 
-Analyzes skull contour protuberance with 6 different degree configurations (5-10):
-
-```bash
-python scripts/skull_protuberance_analysis.py \
-    --data-dir data/skull \
-    --out-dir reports/figures/skull_protuberance \
-    --y-threshold 50
-```
-
-**Output:** 2x3 grid comparing LSQ degrees 5, 6, 7, 8, 9, 10
-
-#### 2. Skull Lemniscate Interpolation
-
-Fits lemniscate-shaped curves to skull boundary:
+Generates exact interpolation of skull contour and protuberance using Bézier curves:
 
 ```bash
-python scripts/skull_lemniscate_interpolation.py \
-    --data-dir data/skull \
-    --out-dir reports/figures/skull_lemniscate \
-    --n-samples 30
+python scripts/bezier_skull_interpolation_report.py \
+    --n-points-skull 12 \
+    --n-points-prot 6 \
+    --y-threshold 52
 ```
 
-#### 3. Synthetic Ellipse Analysis
+**Output:** 3 figures (full skull, protuberance, comparison grid)
+**Method:** Exact Bézier interpolation (degree = N-1)
 
-Compares Bézier interpolation, LSQ, and B-spline methods on synthetic ellipse data:
+#### 2. Skull Bézier LSQ Approximation Report
+
+Generates smooth approximation using least-squares Bézier curves:
+
+```bash
+python scripts/bezier_skull_approximation_report.py \
+    --n-points-skull 14 \
+    --n-points-prot 8 \
+    --degree-skull 8 \
+    --degree-prot 5 \
+    --y-threshold 52
+```
+
+**Output:** 3 figures with error metrics
+**Method:** LSQ approximation with fixed low degree (no oscillations)
+
+#### 3. Skull B-spline Interpolation Report
+
+Generates exact interpolation using B-splines (local control):
+
+```bash
+python scripts/bspline_skull_interpolation_report.py \
+    --n-points-skull 14 \
+    --n-points-prot 7 \
+    --degree 3 \
+    --y-threshold 52
+```
+
+**Output:** 3 figures (full skull, protuberance, comparison grid)
+**Method:** B-spline interpolation with local control (degree 3 = cubic)
+
+#### 4. Bézier Interpolation on Geometric Shapes
+
+Analyzes Bézier interpolation on circle, ellipse, parabola, and lemniscate:
+
+```bash
+python scripts/bezier_interpolation_curves_report.py \
+    --n-points 8 \
+    --output-dir reports/figures/bezier_bsplines_reports/bezier_interpolation_curves
+```
+
+**Output:** Individual figures for each shape + comparison grid
+
+#### 5. Arc-Chord Parameterization Analysis
+
+Compares different parameterization methods (uniform, chord-length, centripetal, arc-length):
+
+```bash
+python scripts/bezier_arc_chord_report.py
+```
+
+**Output:** Detailed comparison of parameterization effects on curve fitting
+
+#### 6. Comprehensive Synthetic Contours Report
+
+Generates detailed analysis of various synthetic contours (6 different reports):
+
+```bash
+python scripts/generate_synthetic_contours_report.py
+```
+
+**Output:** Multiple report folders in `reports/figures/synthetic_reports/`
+
+#### 7. Synthetic Ellipse Analysis
+
+Quick comparison of Bézier interpolation, LSQ, and B-spline on synthetic ellipse:
 
 ```bash
 python scripts/synthetic_ellipse_report.py
 ```
 
-#### 4. Comprehensive Synthetic Contours Report
-
-Generates detailed analysis of various synthetic contours:
-
-```bash
-python scripts/generate_synthetic_contours_report.py
-```
+**Output:** Single comparative analysis of the three main methods
 
 ### Data Structure
 
@@ -274,118 +335,3 @@ pip install -e .
 This installs both runtime and development dependencies from `requirements.txt`.
 
 ______________________________________________________________________
-
-## Output Examples
-
-### Generated Reports
-
-All scripts generate structured outputs in `reports/`:
-
-- **Figures** (`reports/figures/`): PNG plots with matplotlib/PyVista
-
-  - Comparison grids (2x3, 1x3 layouts)
-  - Overlay plots with original data + fitted curves
-  - Error visualizations
-
-- **CSV Data** (`reports/csv/`): Exported contour points, samples, and parameters
-
-  - Original contour points
-  - Sampled points for visualization
-  - Curve evaluation points
-
-- **Models** (`reports/models/`): JSON-serialized curve models
-
-  - Control points
-  - Degree information
-  - Parameterization metadata
-
-### Example Output Structure
-
-```bash
-reports/figures/skull_protuberance/
-├── protuberance_comparison.png      # 2x3 grid (degrees 5-10)
-├── protuberance_data.csv            # Original 56 points
-├── samples_5pts.csv                 # Arc-length sampled points
-├── samples_6pts.csv
-├── ...
-├── samples_10pts.csv
-└── approximation_summary.txt        # Numerical error report
-```
-
-______________________________________________________________________
-
-## Project Philosophy
-
-### Numerical Stability First
-
-This project emphasizes **robust numerical methods** over naive implementations:
-
-- High-degree polynomial interpolation is **inherently unstable** (Runge's phenomenon)
-- LSQ approximation with moderate degree (5-15) provides better results
-- Piecewise methods avoid global ill-conditioning
-- Arc-length sampling ensures geometric uniformity
-
-### Reproducibility
-
-- All analysis scripts are self-contained
-- Outputs are versioned and timestamped
-- Tests ensure consistent behavior across environments
-- Pre-commit hooks maintain code quality
-
-### Educational Value
-
-The codebase serves as a reference for:
-
-- Numerical methods in geometric modeling
-- Best practices for curve fitting
-- Scientific Python project structure
-- Reproducible computational workflows
-
-______________________________________________________________________
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-1. Create a feature branch (`git checkout -b feature/amazing-feature`)
-1. Make your changes with tests
-1. Run pre-commit hooks (`pre-commit run --all-files`)
-1. Commit your changes (`git commit -m 'Add amazing feature'`)
-1. Push to the branch (`git push origin feature/amazing-feature`)
-1. Open a Pull Request
-
-### Code Style
-
-- Follow PEP 8 (enforced by Ruff and Black)
-- Add docstrings to public functions (NumPy style preferred)
-- Include type hints where appropriate
-- Write tests for new functionality
-
-______________________________________________________________________
-
-## License
-
-MIT License - see LICENSE file for details.
-
-______________________________________________________________________
-
-## Contact
-
-For questions, issues, or collaboration:
-
-- Open an issue on GitHub
-- See `pyproject.toml` for project metadata
-
-______________________________________________________________________
-
-## Acknowledgments
-
-This project builds upon:
-
-- **Numerical methods**: De Casteljau algorithm, Cox-de Boor recursion
-- **Python ecosystem**: NumPy, SciPy, matplotlib, PyVista
-- **Medical imaging**: SimpleITK, pydicom, NiBabel
-- **Best practices**: `src/` layout, pytest, pre-commit, reproducible science
-
-Special thanks to the scientific Python community for excellent tools and documentation.
