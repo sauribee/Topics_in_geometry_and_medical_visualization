@@ -505,18 +505,29 @@ def fit_bezier_interpolate(
     n = N - 1
 
     # Warn about high-degree interpolation
+    if n > 10:
+        warnings.warn(
+            f"High-degree Bézier interpolation (degree {n}) is prone to oscillations (Runge phenomenon). "
+            f"For {N} points, consider: "
+            f"(1) LSQ approximation with degree 5-7, "
+            f"(2) piecewise cubic Bézier, or "
+            f"(3) B-spline interpolation.",
+            UserWarning,
+            stacklevel=2,
+        )
+
     if n > 15:
         warnings.warn(
-            f"High-degree Bézier interpolation (degree {n}) is numerically unstable. "
-            f"Consider using piecewise Bézier or B-splines for {N} points.",
+            f"Very high degree ({n}) - expect severe oscillations and numerical artifacts. "
+            f"Results are likely unreliable for visualization.",
             UserWarning,
             stacklevel=2,
         )
 
     if n > 40:
         warnings.warn(
-            f"Extremely high degree ({n}) may produce severe numerical artifacts. "
-            f"Results are likely unreliable.",
+            f"Extremely high degree ({n}) - numerical instability is guaranteed. "
+            f"Do not use this for production.",
             UserWarning,
             stacklevel=2,
         )
