@@ -10,9 +10,6 @@ Genera visualizaciones de interpolación con B-splines para:
 
 Los B-splines ofrecen interpolación suave sin las oscilaciones
 de Bézier de alto grado.
-
-Author: Medical Visualization Team
-Date: 2024
 """
 
 import argparse

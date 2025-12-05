@@ -35,16 +35,20 @@ Topics_in_geometry_and_medical_visualization/
 │   ├── bezier_arc_chord_report.py              # Arc-chord parameterization analysis
 │   ├── bezier_interpolation_curves_report.py   # Bézier interpolation (circle, ellipse, etc.)
 │   ├── bezier_skull_approximation_report.py    # Skull LSQ approximation report
-│   ├── bezier_skull_interpolation_report.py    # Skull Bézier interpolation report
-│   ├── bspline_skull_interpolation_report.py   # Skull B-spline interpolation report
+│   ├── bezier_skull_interpolation_report.py    # Skull Bézier interpolation report (single slice)
+│   ├── bspline_skull_interpolation_report.py   # Skull B-spline interpolation report (single slice)
+│   ├── bspline_skull_slices_batch_report.py    # 🆕 B-spline batch analysis (10 slices)
 │   ├── generate_synthetic_contours_report.py   # Comprehensive synthetic data analysis
 │   └── synthetic_ellipse_report.py             # Ellipse fitting comparison
 ├── data/                          # Data directory
-│   ├── skull/                     # Skull contour data (left/right borders)
+│   ├── skull/                     # Skull contour data (single slice - original)
 │   │   ├── borde_craneo_parte_izquierda_Eje_X.txt
 │   │   ├── borde_craneo_parte_izquierda_Eje_Y.txt
 │   │   ├── borde_craneo_parte_derecha_Eje_X.txt
 │   │   └── borde_craneo_parte_derecha_Eje_Y.txt
+│   ├── skull_edges/               # 🆕 Multi-slice skull data (10 axial slices)
+│   │   ├── corte0/ ... corte9/    # Each contains: x.txt, y.txt, img.txt, shape.txt
+│   │   └── [418-828 points per slice]
 │   ├── external/                  # External datasets
 │   ├── interim/                   # Intermediate processing results
 │   ├── processed/                 # Final processed data
@@ -59,7 +63,8 @@ Topics_in_geometry_and_medical_visualization/
 │   │   ├── skull_reports/                   # Skull contour analysis
 │   │   │   ├── bezier_skull_approximation/  # Skull LSQ Bézier approximation
 │   │   │   ├── bezier_skull_interpolation/  # Skull Bézier interpolation
-│   │   │   └── bspline_skull_interpolation/ # Skull B-spline interpolation
+│   │   │   ├── bspline_skull_interpolation/ # Skull B-spline interpolation
+│   │   │   └── skull_slices_bspline/        # 🆕 Multi-slice B-spline (10 slices)
 │   │   └── synthetic_reports/               # Synthetic data analysis
 │   │       ├── synthetic_report_00/         # Circle analysis
 │   │       ├── synthetic_report_01/         # Ellipse analysis
@@ -159,7 +164,37 @@ python scripts/bspline_skull_interpolation_report.py \
 **Output:** 3 figures (full skull, protuberance, comparison grid)
 **Method:** B-spline interpolation with local control (degree 3 = cubic)
 
-#### 4. Bézier Interpolation on Geometric Shapes
+#### 4. 🆕 Multi-Slice B-spline Batch Report (10 Axial Slices)
+
+Processes 10 axial skull slices with B-spline interpolation and protuberance detection:
+
+```bash
+python scripts/bspline_skull_slices_batch_report.py \
+    --slice-start 0 \
+    --slice-end 9 \
+    --n-samples-full 20 \
+    --n-samples-prot 10 \
+    --degree 3 \
+    --y-threshold 50
+```
+
+**Output:**
+
+- 10 individual slice reports
+- Multi-slice comparison grid (2×5)
+- Metrics summary plots
+- CSV file with statistics
+
+**Method:** B-spline batch processing with automatic protuberance detection
+
+**Key Features:**
+
+- Consistent methodology across all slices
+- Protuberance detection: 7/10 slices (cortes 0-6)
+- Average 568 points per slice
+- Error: ~10⁻¹³ (machine precision)
+
+#### 5. Bézier Interpolation on Geometric Shapes
 
 Analyzes Bézier interpolation on circle, ellipse, parabola, and lemniscate:
 

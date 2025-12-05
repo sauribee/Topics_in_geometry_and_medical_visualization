@@ -7,9 +7,6 @@ Genera visualizaciones de interpolación de Bézier para:
 1. Contorno completo del cráneo
 2. Protuberancia occipital (Y < 50)
 3. Grid comparativo de ambas
-
-Author: Medical Visualization Team
-Date: 2024
 """
 
 import argparse

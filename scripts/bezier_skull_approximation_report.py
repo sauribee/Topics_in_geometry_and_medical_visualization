@@ -10,9 +10,6 @@ Genera visualizaciones de APROXIMACIÓN LSQ de Bézier para:
 
 Usa aproximación de mínimos cuadrados con grados bajos para evitar
 oscilaciones, en lugar de interpolación exacta.
-
-Author: Medical Visualization Team
-Date: 2024
 """
 
 import argparse
