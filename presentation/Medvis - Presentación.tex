@@ -1,0 +1,545 @@
+\documentclass[10pt]{beamer}
+\mode<presentation>
+{
+  \usetheme{Antibes}
+  \useoutertheme{default}
+  \setbeamertemplate{navigationsymbols}{only frame symbol}
+}
+
+\usepackage{color}
+\usepackage{verbatim}
+\usepackage{subfigure}
+\usepackage{amsmath,amsthm,amsfonts,amscd,amssymb,amsbsy,epsf}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{graphics}
+\usepackage{bbm}
+\usepackage{enumerate}
+\usepackage{hyperref}
+\definecolor{darkblue}{rgb}{0.2,0,1}
+\definecolor{darkred}{rgb}{1,0,0.5}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title[Curvas de Bézier y B-splines en Modelado Médico]{Modelado Geométrico con Curvas de Bézier y B-splines \\
+\small{Aplicación a Contornos de Cráneo}}
+\author{Santiago Uribe \texorpdfstring{\\}{, } Tópicos en Geometría y Visualización Médica \thanks{Universidad Nacional de Colombia, Sede Medell{\'i}n}}
+\date{\small{Repositorio: \url{https://github.com/sauribee/Topics_in_geometry_and_medical_visualization}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \titlepage
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Tabla de contenidos}
+  \vspace{-.5cm}
+    \tableofcontents
+  \vspace{-.5cm}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Marco teórico}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+	\frametitle{Curvas de Bézier}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      Las curvas de Bézier son curvas paramétricas definidas por puntos de control. Se basan en los polinomios de Bernstein:
+      \[
+        \mathbf{C}(t) = \sum_{i=0}^{n} B_{i,n}(t) \mathbf{P}_i, \quad t \in [0,1]
+      \]
+      donde $B_{i,n}(t) = \binom{n}{i} t^i (1-t)^{n-i}$ son las bases de Bernstein y $\mathbf{P}_i$ los puntos de control.
+      
+      \begin{itemize}
+        \item[-] Pasan por el primer y último punto de control
+        \item[-] Control intuitivo mediante puntos de control
+        \item[-] Grado $n-1$ para $n$ puntos 
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/bezier_bsplines_reports/bezier_interpolation_curves/01_círculo_interpolation.png}
+        \caption{Interpolación de Bézier en círculo}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{B-splines}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      Los B-splines son curvas paramétricas por tramos que ofrecen control local. Se definen mediante:
+      \[
+        \mathbf{S}(t) = \sum_{i=0}^{n} N_{i,p}(t) \mathbf{P}_i
+      \]
+      donde $N_{i,p}(t)$ son las funciones base B-spline de grado $p$ y $\mathbf{P}_i$ los puntos de control.
+      
+      \textbf{Ventajas sobre Bézier:}
+      \begin{itemize}
+        \item[-] Mejor control local
+        \item[-] Estabilidad numérica para muchos puntos
+        \item[-] Grado fijo independiente del número de puntos
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_01/bspline_skull_interpolation/02_protuberancia_bspline.png}
+        \caption{Interpolación B-spline en protuberancia}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Parametriz  ación de curvas}
+
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+      La parametrización determina cómo se distribuyen los valores de $t$ entre los puntos. Métodos implementados:
+      
+      \begin{enumerate}
+        \item[1.] \textbf{Uniforme}: $t_i = i / (n-1)$
+        
+        \item[2.] \textbf{Chord-length}: $t_i = t_{i-1} + \|\mathbf{P}_i - \mathbf{P}_{i-1}\|$
+        
+        \item[3.] \textbf{Centripetal}: $t_i = t_{i-1} + \|\mathbf{P}_i - \mathbf{P}_{i-1}\|^{0.5}$
+        
+        \item[4.] \textbf{Arc-chord}: combina longitud de arco con cuerda
+      \end{enumerate}
+      
+      \vspace{0.3cm}
+      La parameterización chord-length es más estable para curvas irregulares.
+    \end{column}
+
+    \begin{column}{0.4\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/bezier_bsplines_reports/arc_chord_parameterization/99_comparison_grid.png}
+        \caption{Comparación de parametrizaciones}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Aplicación médica}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Planteamiento del problema}
+
+  \textbf{Objetivo:} Modelar contornos de cráneo a partir de datos médicos discretos.
+
+  \vspace{0.3cm}
+  \textbf{Datos de entrada:}
+  \begin{itemize}
+    \item[-] Coordenadas $(x, y)$ de puntos del borde del cráneo
+    \item[-] Lado izquierdo y derecho del contorno
+    \item[-] Múltiples cortes axiales (10 slices)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Desafíos:}
+  \begin{itemize}
+    \item[-] Datos ruidosos e irregularmente espaciados
+    \item[-] Necesidad de curvas suaves para visualización
+    \item[-] Detección de características anatómicas (protuberancia occipital)
+    \item[-] Mantener precisión sin oscilaciones excesivas
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Enfoques de modelado implementados}
+
+  Se implementaron tres enfoques complementarios:
+
+  \vspace{0.3cm}
+  \begin{enumerate}
+    \item[1.] \textbf{Interpolación de Bézier}: Curva que pasa exactamente por los puntos de control.
+    \begin{itemize}
+      \item[$\cdot$] Grado = N - 1 (puede ser alto para muchos puntos)
+      \item[$\cdot$] Oscilaciones para muchos puntos
+    \end{itemize}
+
+    \item[2.] \textbf{Aproximación LSQ de Bézier}: Curva suave que minimiza el error cuadrático.
+    \begin{itemize}
+      \item[$\cdot$] Grado fijo (2-8), independiente de la cantidad $N$ de puntos
+      \item[$\cdot$] Sin oscilaciones, curva suave
+    \end{itemize}
+
+    \item[3.] \textbf{Interpolación B-spline}: Combina lo mejor de ambos.
+    \begin{itemize}
+      \item[$\cdot$] Interpolación exacta con grado fijo (cúbico)
+      \item[$\cdot$] Control local, estabilidad numérica
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Estabilidad numérica}
+
+  \textbf{Problema:} Curvas de Bézier de alto grado sufren inestabilidad numérica.
+
+  \vspace{0.3cm}
+  \textbf{Soluciones implementadas:}
+  \begin{itemize}
+    \item[-] Cálculo en espacio logarítmico para coeficientes binomiales:
+    \[
+      \log\binom{n}{k} = \log\Gamma(n+1) - \log\Gamma(k+1) - \log\Gamma(n-k+1)
+    \]
+    donde $\Gamma(\alpha) = \displaystyle\int_0^\infty t^{\alpha-1} e^{-t} dt$, es la función gamma.
+
+    \item[-] SVD para resolver sistemas mal condicionados
+    
+    \item[-] Advertencias cuando grado $> 15$ (interpolación) o $> 20$ (LSQ)
+    
+    \item[-] Monitoreo del número de condición de matrices de Bernstein
+    
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Resultado:} Estabilidad garantizada.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Metodología y parámetros}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Herramientas y tecnologías}
+
+  \begin{columns}
+    \begin{column}{0.7\textwidth}
+      \textbf{Implementación}:
+      \begin{itemize}
+        \item[-] \textbf{Lenguaje}: Python 3.12+
+        \item[-] \textbf{Bibliotecas numéricas}:
+        \begin{itemize}
+          \item[$\cdot$] NumPy $\geq$ 2.1 y SciPy $\geq$ 1.14
+          \item[$\cdot$] Bezier $\geq$ 2024.6.20
+        \end{itemize}
+        \item[-] \textbf{Visualización}:
+        \begin{itemize}
+          \item[$\cdot$] Matplotlib, PyVista, VTK
+        \end{itemize}
+        \item[-] \textbf{I/O médico}: SimpleITK, pydicom, nibabel
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \textbf{Estructura del proyecto}:
+      \begin{itemize}
+        \item[-] Paquete instalable: \texttt{medvis}
+        \item[-] Scripts de análisis reproducibles
+        \item[-] Tests automatizados con pytest
+      \end{itemize}
+    \end{column}
+    
+    \begin{column}{0.3\textwidth}
+      \begin{figure}
+        \centering
+        \vspace{0.5cm}
+        \textbf{Repositorio}
+        
+        \vspace{0.3cm}
+        \small{\url{github.com/sauribee/Topics_in_geometry_and_medical_visualization}}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Métricas de evaluación}
+
+  \textbf{Error cuadrático medio (MSE):}
+  \[
+    \text{MSE} = \frac{1}{N} \sum_{i=1}^{N} \|\mathbf{C}(t_i) - \mathbf{P}_i\|^2
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Error máximo:}
+  \[
+    \text{Error}_\text{max} = \max_{i=1,\ldots,N} \|\mathbf{C}(t_i) - \mathbf{P}_i\|
+  \]
+
+  \vspace{0.3cm}
+  \textbf{Para B-splines (interpolación):}
+  \begin{itemize}
+    \item[-] Error teórico: precisión de máquina ($\sim 10^{-13}$)
+    \item[-] Confirmado experimentalmente en todos los casos
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Para aproximación LSQ:}
+  \begin{itemize}
+    \item[-] Error depende del grado elegido
+    \item[-] Trade-off entre suavidad y precisión
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Parámetros de ejecución - skull\_reports\_01}
+
+  \textbf{Dataset:} Corte axial único del cráneo
+
+  \vspace{0.3cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Interpolación Bézier:}
+      \begin{itemize}
+        \item[$\cdot$] Puntos cráneo: 12
+        \item[$\cdot$] Puntos protuberancia: 6
+        \item[$\cdot$] Umbral Y: 52
+        \item[$\cdot$] Parameterización: chord-length
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \textbf{Aproximación LSQ Bézier:}
+      \begin{itemize}
+        \item[$\cdot$] Puntos muestreados: 14
+        \item[$\cdot$] Grado cráneo: 8
+        \item[$\cdot$] Grado protuberancia: 5
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Interpolación B-spline:}
+      \begin{itemize}
+        \item[$\cdot$] Puntos cráneo: 14
+        \item[$\cdot$] Puntos protuberancia: 7
+        \item[$\cdot$] Grado: 3 (cúbico)
+        \item[$\cdot$] Knot vector: uniforme abierto
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \textbf{Preprocesamiento:}
+      \begin{itemize}
+        \item[$\cdot$] Muestreo uniforme por longitud de arco
+        \item[$\cdot$] Detección automática de protuberancia
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Parámetros de ejecución - skull\_reports\_02}
+
+  \textbf{Dataset:} 10 cortes axiales (corte 0 - corte 9)
+
+  \vspace{0.3cm}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Procesamiento por lotes:}
+      \begin{itemize}
+        \item[$\cdot$] Método: B-spline cúbico
+        \item[$\cdot$] Puntos muestreados (full): 20
+        \item[$\cdot$] Puntos muestreados (prot): 10
+        \item[$\cdot$] Grado: 3
+        \item[$\cdot$] Umbral Y: 50
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \textbf{Estadísticas del dataset:}
+      \begin{itemize}
+        \item[$\cdot$] Promedio: 568 puntos/slice
+        \item[$\cdot$] Rango: 418-828 puntos
+      \end{itemize}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \textbf{Detección de protuberancia:}
+      \begin{itemize}
+        \item[$\cdot$] 7/10 slices con protuberancia
+        \item[$\cdot$] Cortes 0-6: protuberancia detectada
+        \item[$\cdot$] Cortes 7-9: solo contorno completo
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \textbf{Outputs generados:}
+      \begin{itemize}
+        \item[$\cdot$] 10 reportes individuales
+        \item[$\cdot$] Grids comparativos (2×5)
+        \item[$\cdot$] CSV con métricas
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Resultados - skull\_reports\_01}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Comparación de métodos - Contorno completo}
+
+  \begin{columns}
+    \begin{column}{0.33\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png}
+        \caption{Bézier interpolación}
+      \end{figure}
+    \end{column}
+
+    \begin{column}{0.33\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png}
+        \caption{Bézier LSQ}
+      \end{figure}
+    \end{column}
+
+    \begin{column}{0.33\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png}
+        \caption{B-spline}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Comparación de métodos - Protuberancia}
+
+  \begin{columns}
+    \begin{column}{0.33\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1.25\textwidth]{../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png}
+        \caption{Bézier interpolación}
+      \end{figure}
+    \end{column}
+
+    \begin{column}{0.33\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1.25\textwidth]{../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png}
+        \caption{Bézier LSQ}
+      \end{figure}
+    \end{column}
+
+    \begin{column}{0.33\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1.25\textwidth]{../reports/figures/skull_reports_01/bspline_skull_interpolation/02_protuberancia_bspline.png}
+        \caption{B-spline}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Grids comparativos}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png}
+        \caption{Interpolación Bézier}
+      \end{figure}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png}
+        \caption{Interpolación B-spline}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Resultados - skull\_reports\_02}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Análisis multi-slice - Puntos de datos}
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_02/skull_points/all_slices_grid.png}
+    \caption{10 cortes axiales con puntos de contorno originales (418-828 puntos por slice)}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Análisis de protuberancia - Multi-slice}
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png}
+    \caption{Detección y modelado de protuberancia occipital en cortes 0-4}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conexión de lados - Ejemplos}
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png}
+    \caption{Conexión suave entre lado izquierdo y derecho en cortes 6-8}
+  \end{figure}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusiones}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Conclusiones}
+
+  \textbf{Resultados principales:}
+  \begin{itemize}
+    \item[-] \textbf{B-splines cúbicos}: Método óptimo para contornos médicos
+    \begin{itemize}
+      \item[$\cdot$] Interpolación exacta (error $\sim 10^{-13}$)
+      \item[$\cdot$] Estabilidad numérica garantizada
+      \item[$\cdot$] Control local para edición
+    \end{itemize}
+    
+    \item[-] \textbf{Bézier interpolación}: Útil para pocos puntos ($< 10$)
+    \begin{itemize}
+      \item[$\cdot$] Oscilaciones para muchos puntos
+      \item[$\cdot$] Control global más intuitivo
+    \end{itemize}
+    
+    \item[-] \textbf{Bézier LSQ}: Mejor para suavizado
+    \begin{itemize}
+      \item[$\cdot$] Trade-off entre suavidad y precisión
+      \item[$\cdot$] No pasa exactamente por los puntos
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+
+  \vspace{1cm}
+
+  \begin{center}
+    \textbf{¡Gracias por su atención!}
+    
+    \vspace{0.75cm}
+    \small{Repositorio: \url{https://github.com/sauribee/Topics_in_geometry_and_medical_visualization}}
+  \end{center}
+
+\end{frame}
+
+\end{document}
