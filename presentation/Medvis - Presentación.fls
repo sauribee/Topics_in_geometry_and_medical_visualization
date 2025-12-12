@@ -469,6 +469,8 @@ INPUT ..\reports\figures\bezier_bsplines_reports\arc_chord_parameterization\99_c
 INPUT ..\reports\figures\bezier_bsplines_reports\arc_chord_parameterization\99_comparison_grid.png
 INPUT ..\reports\figures\bezier_bsplines_reports\arc_chord_parameterization\99_comparison_grid.png
 INPUT ..\reports\figures\bezier_bsplines_reports\arc_chord_parameterization\99_comparison_grid.png
+INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\helvetic\phvb7t.vf
+INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\helvetic\phvb8r.tfm
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\helvetic\phvb7t.tfm
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\helvetic\phvb7t.tfm
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\helvetic\phvro7t.vf
@@ -579,6 +581,8 @@ INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\c
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy7.pfb
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\cm\cmsy9.pfb
+INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
+INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\public\amsfonts\symbols\msbm10.pfb
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\urw\courier\ucrr8a.pfb
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\urw\courier\ucrr8a.pfb
 INPUT C:\Users\surib\AppData\Local\Programs\MiKTeX\fonts\type1\urw\helvetic\uhvb8a.pfb

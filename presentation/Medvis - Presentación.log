@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.11.26)  10 DEC 2025 14:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.11.26)  12 DEC 2025 16:24
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -821,7 +821,7 @@ Package pdftex.def Info: ../reports/figures/skull_reports_01/bspline_skull_inter
  [4
 
  <../reports/figures/skull_reports_01/bspline_skull_interpolation/02_protuberancia_bspline.png>]
-<../reports/figures/bezier_bsplines_reports/arc_chord_parameterization/99_comparison_grid.png, id=188, 1149.093pt x 1270.5066pt>
+<../reports/figures/bezier_bsplines_reports/arc_chord_parameterization/99_comparison_grid.png, id=189, 1149.093pt x 1270.5066pt>
 File: ../reports/figures/bezier_bsplines_reports/arc_chord_parameterization/99_comparison_grid.png Graphic file (type png)
 <use ../reports/figures/bezier_bsplines_reports/arc_chord_parameterization/99_comparison_grid.png>
 Package pdftex.def Info: ../reports/figures/bezier_bsplines_reports/arc_chord_parameterization/99_comparison_grid.png  used on input line 137.
@@ -840,102 +840,106 @@ Package pdftex.def Info: ../reports/figures/bezier_bsplines_reports/arc_chord_pa
 
 ] [11
 
+] [12
+
+] [13
+
 ]
-LaTeX Font Info:    Trying to load font information for TS1+phv on input line 380.
+LaTeX Font Info:    Trying to load font information for TS1+phv on input line 415.
  (C:\Users\surib\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1phv.fd
 File: ts1phv.fd 2020/03/25 scalable font definitions for TS1/phv.
-) [12
+) [14
 
 ]
-<../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png, id=442, 766.062pt x 478.9092pt>
+<../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png, id=506, 766.062pt x 478.9092pt>
 File: ../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png  used on input line 414.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png  used on input line 449.
 (pdftex.def)             Requested size: 101.40622pt x 63.39305pt.
-<../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png, id=443, 769.4346pt x 446.6286pt>
+<../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png, id=507, 769.4346pt x 446.6286pt>
 File: ../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png  used on input line 414.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png  used on input line 449.
 (pdftex.def)             Requested size: 101.40622pt x 58.8611pt.
-<../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png, id=444, 766.5438pt x 487.0998pt>
+<../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png, id=508, 766.5438pt x 487.0998pt>
 File: ../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png  used on input line 414.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png  used on input line 449.
 (pdftex.def)             Requested size: 101.40622pt x 64.43263pt.
- [13
+ [15
 
  <../reports/figures/skull_reports_01/bezier_skull_interpolation/01_craneo_completo_interpolation.png> <../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png> <../reports/figures/skull_reports_01/bspline_skull_interpolation/01_craneo_completo_bspline.png>]
-<../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png, id=481, 826.287pt x 478.9092pt>
+<../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png, id=544, 826.287pt x 478.9092pt>
 File: ../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png  used on input line 444.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png  used on input line 479.
 (pdftex.def)             Requested size: 126.75777pt x 73.46286pt.
 
-Overfull \hbox (25.35155pt too wide) in paragraph at lines 444--444
+Overfull \hbox (25.35155pt too wide) in paragraph at lines 479--479
  [] 
  []
 
-<../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png, id=482, 826.287pt x 446.6286pt>
+<../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png, id=545, 826.287pt x 446.6286pt>
 File: ../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png  used on input line 444.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png  used on input line 479.
 (pdftex.def)             Requested size: 126.75777pt x 68.51114pt.
 
-Overfull \hbox (25.35155pt too wide) in paragraph at lines 444--444
+Overfull \hbox (25.35155pt too wide) in paragraph at lines 479--479
  [] 
  []
 
 File: ../reports/figures/skull_reports_01/bspline_skull_interpolation/02_protuberancia_bspline.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bspline_skull_interpolation/02_protuberancia_bspline.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bspline_skull_interpolation/02_protuberancia_bspline.png  used on input line 444.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bspline_skull_interpolation/02_protuberancia_bspline.png  used on input line 479.
 (pdftex.def)             Requested size: 126.75777pt x 74.71927pt.
 
-Overfull \hbox (25.35155pt too wide) in paragraph at lines 444--444
+Overfull \hbox (25.35155pt too wide) in paragraph at lines 479--479
  [] 
  []
 
-[14
+[16
 
  <../reports/figures/skull_reports_01/bezier_skull_interpolation/02_protuberancia_interpolation.png> <../reports/figures/skull_reports_01/bezier_skull_approximation/02_protuberancia_approximation.png>]
-<../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png, id=515, 1046.4696pt x 498.663pt>
+<../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png, id=578, 1046.4696pt x 498.663pt>
 File: ../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png  used on input line 466.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png  used on input line 501.
 (pdftex.def)             Requested size: 153.64493pt x 73.21355pt.
-<../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png, id=516, 1047.4332pt x 498.663pt>
+<../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png, id=579, 1047.4332pt x 498.663pt>
 File: ../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png Graphic file (type png)
 <use ../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png  used on input line 466.
+Package pdftex.def Info: ../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png  used on input line 501.
 (pdftex.def)             Requested size: 153.64493pt x 73.14507pt.
- [15
-
- <../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png> <../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png>]
-<../reports/figures/skull_reports_02/skull_points/all_slices_grid.png, id=549, 1053.6966pt x 499.1448pt>
-File: ../reports/figures/skull_reports_02/skull_points/all_slices_grid.png Graphic file (type png)
-<use ../reports/figures/skull_reports_02/skull_points/all_slices_grid.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_02/skull_points/all_slices_grid.png  used on input line 480.
-(pdftex.def)             Requested size: 307.28987pt x 145.56323pt.
- [16
-
- <../reports/figures/skull_reports_02/skull_points/all_slices_grid.png>]
-<../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png, id=583, 1414.083pt x 333.8874pt>
-File: ../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png Graphic file (type png)
-<use ../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png  used on input line 490.
-(pdftex.def)             Requested size: 307.28987pt x 72.55368pt.
  [17
 
- <../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png>]
-<../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png, id=615, 1014.189pt x 356.532pt>
-File: ../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png Graphic file (type png)
-<use ../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png>
-Package pdftex.def Info: ../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png  used on input line 500.
-(pdftex.def)             Requested size: 307.28987pt x 108.0267pt.
+ <../reports/figures/skull_reports_01/bezier_skull_interpolation/00_comparison_grid.png> <../reports/figures/skull_reports_01/bspline_skull_interpolation/00_comparison_grid.png>]
+<../reports/figures/skull_reports_02/skull_points/all_slices_grid.png, id=612, 1053.6966pt x 499.1448pt>
+File: ../reports/figures/skull_reports_02/skull_points/all_slices_grid.png Graphic file (type png)
+<use ../reports/figures/skull_reports_02/skull_points/all_slices_grid.png>
+Package pdftex.def Info: ../reports/figures/skull_reports_02/skull_points/all_slices_grid.png  used on input line 515.
+(pdftex.def)             Requested size: 307.28987pt x 145.56323pt.
  [18
 
- <../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png>] [19
+ <../reports/figures/skull_reports_02/skull_points/all_slices_grid.png>]
+<../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png, id=646, 1414.083pt x 333.8874pt>
+File: ../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png Graphic file (type png)
+<use ../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png>
+Package pdftex.def Info: ../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png  used on input line 525.
+(pdftex.def)             Requested size: 307.28987pt x 72.55368pt.
+ [19
 
-] [20
+ <../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png>]
+<../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png, id=679, 1014.189pt x 356.532pt>
+File: ../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png Graphic file (type png)
+<use ../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png>
+Package pdftex.def Info: ../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png  used on input line 535.
+(pdftex.def)             Requested size: 307.28987pt x 108.0267pt.
+ [20
+
+ <../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png>] [21
+
+] [22
 
 ]
 \tf@nav=\write6
@@ -959,17 +963,17 @@ Package rerunfilecheck Info: File `"Medvis - Presentación".out' has not changed
 (rerunfilecheck)             Checksum: 29355707356F2070C1C0300653CE08D4;929.
  ) 
 Here is how much of TeX's memory you used:
- 23956 strings out of 467871
- 471556 string characters out of 5418375
- 853889 words of memory out of 5000000
- 52266 multiletter control sequences out of 15000+600000
- 660688 words of font info for 104 fonts, out of 8000000 for 9000
+ 23967 strings out of 467871
+ 471690 string characters out of 5418375
+ 856889 words of memory out of 5000000
+ 52272 multiletter control sequences out of 15000+600000
+ 661785 words of font info for 105 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,15n,123p,507b,705s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on "Medvis - Presentación.pdf" (20 pages, 2096843 bytes).
+ 128i,15n,123p,604b,705s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvro8a.pfb>
+Output written on "Medvis - Presentación.pdf" (22 pages, 2116632 bytes).
 PDF statistics:
- 776 PDF objects out of 1000 (max. 8388607)
- 47 named destinations out of 1000 (max. 500000)
+ 844 PDF objects out of 1000 (max. 8388607)
+ 51 named destinations out of 1000 (max. 500000)
  156 words of extra memory for PDF output out of 10000 (max. 10000000)
 

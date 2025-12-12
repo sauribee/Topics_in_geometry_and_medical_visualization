@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1765394709.39555 "c:/Users/surib/Projects/GitHub/Topics_in_geometry_and_medical_visualization/presentation/Medvis - Presentación.tex" "Medvis - Presentación.pdf" "Medvis - Presentación" 1765394723.72594 0
+["pdflatex"] 1765574667.5608 "c:/Users/surib/Projects/GitHub/Topics_in_geometry_and_medical_visualization/presentation/Medvis - Presentación.tex" "Medvis - Presentación.pdf" "Medvis - Presentación" 1765574673.23127 0
   "../reports/figures/bezier_bsplines_reports/arc_chord_parameterization/99_comparison_grid.png" 1763140309 359562 1852e2b707540b005935bddc1840deb4 ""
   "../reports/figures/bezier_bsplines_reports/bezier_interpolation_curves/01_círculo_interpolation.png" 1763142700 167910 37a592eb9083ffa5a2ae96814e9aab70 ""
   "../reports/figures/skull_reports_01/bezier_skull_approximation/01_craneo_completo_approximation.png" 1763144526 190248 eb5eca4b5dd727b1bd8b741626594c03 ""
@@ -13,7 +13,7 @@
   "../reports/figures/skull_reports_02/protuberance_analysis/protuberances_comparison_grid.png" 1764958184 136940 18f14ee2e696f2650dbaff930f7f1a4a ""
   "../reports/figures/skull_reports_02/skull_points/all_slices_grid.png" 1764957063 164227 f71979d32c5aaa42f95b1e932ef0c8e1 ""
   "../reports/figures/skull_reports_02/skull_sides_connection/skull_sides_comparison_grid.png" 1764959670 111131 914551389d06cfee86de179dc1bc2563 ""
-  "C:/Users/surib/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1764199454 256128 cd130da068633c4a03a687305a3490d8 ""
+  "C:/Users/surib/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1765426421 256128 cd130da068633c4a03a687305a3490d8 ""
   "C:/Users/surib/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1764212397 13333512 feb27a5760ae6364f8ad723995713ef3 ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136765053 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -52,6 +52,7 @@
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy6.pfb" 1247596667 32587 65067f817f408bc71a7312f3d9828a9b ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1247596666 32716 08e384dc442464e7285e891af9f45947 ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy9.pfb" 1247596666 32442 c975af247b6702f7ca0c299af3616b80 ""
+  "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbols/msbm10.pfb" 1247596673 34694 870c211f62cb72718a00e353f14f254d ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb" 1136846148 45758 19968a0990191524e34e1994d4a31cb6 ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvb8a.pfb" 1136871348 35941 adef23a721dd8354a4a2bf4434f1c484 ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvr8a.pfb" 1136871348 44648 23115b2a545ebfe2c526c3ca99db8b95 ""
@@ -239,12 +240,12 @@
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/tex/latex/translator/translator.sty" 1622471510 8765 56d370785f0143111ff9898b5adfe08e ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/surib/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "Medvis - Presentación.aux" 1765394722 5058 c1088e264d7694b6d9a8a60ec8fd5756 "pdflatex"
-  "Medvis - Presentación.nav" 1765394722 3101 8917c674b24a1b0e0128436c8423fb97 "pdflatex"
-  "Medvis - Presentación.out" 1765394722 929 29355707356f2070c1c0300653ce08d4 "pdflatex"
-  "Medvis - Presentación.tex" 1765394698 17034 9c95ad6070b9a41bf59e13c88f67c674 ""
-  "Medvis - Presentación.toc" 1765394722 382 b8ec6b3b9eb4d72811961861e5e3698e "pdflatex"
-  "c:/Users/surib/Projects/GitHub/Topics_in_geometry_and_medical_visualization/presentation/Medvis - Presentación.tex" 1765394698 17034 9c95ad6070b9a41bf59e13c88f67c674 ""
+  "Medvis - Presentación.aux" 1765574672 5320 fc0a1f2cbb0d275906a99e9340d273a2 "pdflatex"
+  "Medvis - Presentación.nav" 1765574672 3290 b3bf69e808094ac53919e0931497c796 "pdflatex"
+  "Medvis - Presentación.out" 1765574672 929 29355707356f2070c1c0300653ce08d4 "pdflatex"
+  "Medvis - Presentación.tex" 1765574661 18749 953a16b31d6999356b6bfd074f43a39f ""
+  "Medvis - Presentación.toc" 1765574672 383 52eb074902b4052e80d351bd531db0c3 "pdflatex"
+  "c:/Users/surib/Projects/GitHub/Topics_in_geometry_and_medical_visualization/presentation/Medvis - Presentación.tex" 1765574661 18749 953a16b31d6999356b6bfd074f43a39f ""
   (generated)
   "Medvis - Presentación.aux"
   "Medvis - Presentación.log"

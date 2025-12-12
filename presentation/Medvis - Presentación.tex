@@ -106,7 +106,7 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Parametriz  ación de curvas}
+	\frametitle{Parametrización de curvas}
 
   \begin{columns}
     \begin{column}{0.6\textwidth}
@@ -134,6 +134,41 @@
       \end{figure}
     \end{column}
   \end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Matriz de Bernstein}
+
+  Dada una parametrización $\{t_0, t_1, \ldots, t_m\}$ y un grado $n$, para la \textbf{matriz de Bernstein} $\mathbf{B} \in \mathbb{R}^{(m+1) \times (n+1)}$ se define la entrada $i,j$ como:
+  \[
+    B_{i,j} = B_{j,n}(t_i) = \binom{n}{j} t_i^j (1-t_i)^{n-j}
+  \]
+  y de esta forma podemos decir que
+  \[
+    C(t_j) = \sum_{i=0}^{n} B_{i,n}(t_j) \mathbf{P}_i
+  \]
+
+  y así en forma matricial si $\mathbf{B}$ es la matriz de Bernstein, se tiene que
+  \[
+    \begin{bmatrix} C(t_1) \\ C(t_2) \\ \vdots \\ C(t_m) \end{bmatrix} = \mathbf{B} \begin{bmatrix} \mathbf{P}_0 \\ \mathbf{P}_1 \\ \vdots \\ \mathbf{P_n} \end{bmatrix} = \begin{bmatrix} B_{0,n}(t_1) & B_{1,n}(t_1) & \cdots & B_{n,n}(t_1) \\ B_{0,n}(t_2) & B_{1,n}(t_2) & \cdots & B_{n,n}(t_2) \\ \vdots & \vdots & \ddots & \vdots \\ B_{0,n}(t_m) & B_{1,n}(t_m) & \cdots & B_{n,n}(t_m) \end{bmatrix} \begin{bmatrix} \mathbf{P}_0 \\ \mathbf{P}_1 \\ \vdots \\ \mathbf{P_n} \end{bmatrix}
+  \]
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Aplicación en interpolación/aproximación}
+
+  \textbf{Aplicación en interpolación/aproximación:}
+
+  La matriz $\mathbf{B}$ puede ser utilizada para resolver problemas de interpolación y aproximación como se muestra a continuación:
+
+  \begin{itemize}
+    \item[-] \textbf{Interpolación} ($m = n$): Resolver $\mathbf{B} \mathbf{P} = \mathbf{D}$ para un vector de puntos de control $\mathbf{P}$
+    \item[-] \textbf{Aproximación LSQ} ($m > n$): Minimizar $\|\mathbf{B} \mathbf{P} - \mathbf{D}\|^2$ mediante $\mathbf{P} = (\mathbf{B}^T \mathbf{B})^{-1} \mathbf{B}^T \mathbf{D}$
+  \end{itemize}
+
+  donde $\mathbf{D}$ son los puntos de datos a interpolar/aproximar.
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

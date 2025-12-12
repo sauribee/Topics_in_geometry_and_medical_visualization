@@ -1,7 +1,7 @@
 \babel@toc {spanish}{}\relax 
 \beamer@sectionintoc {1}{Marco teórico}{3}{0}{1}
-\beamer@sectionintoc {2}{Aplicación médica}{6}{0}{2}
-\beamer@sectionintoc {3}{Metodología y parámetros}{9}{0}{3}
-\beamer@sectionintoc {4}{Resultados - skull\_reports\_01}{13}{0}{4}
-\beamer@sectionintoc {5}{Resultados - skull\_reports\_02}{16}{0}{5}
-\beamer@sectionintoc {6}{Conclusiones}{19}{0}{6}
+\beamer@sectionintoc {2}{Aplicación médica}{8}{0}{2}
+\beamer@sectionintoc {3}{Metodología y parámetros}{11}{0}{3}
+\beamer@sectionintoc {4}{Resultados - skull\_reports\_01}{15}{0}{4}
+\beamer@sectionintoc {5}{Resultados - skull\_reports\_02}{18}{0}{5}
+\beamer@sectionintoc {6}{Conclusiones}{21}{0}{6}
